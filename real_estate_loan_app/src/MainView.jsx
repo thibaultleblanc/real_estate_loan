@@ -1,205 +1,31 @@
 import {
   Box,
-  Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  TextField,
-  Typography,
-  FormControl,
-  Switch,
-  FormControlLabel,
 } from "@mui/material";
 import { useState } from "react";
+import Salary from "./Salary";
+import RealEstateLoan from "./RealEstateLoan";
 
-const HEURES_MENSUELLES = 151.67;
-const NB_MOIS = 12;
+function MainView() {
 
-function MainView({ brutAnnuel, setBrutAnnuel, isCadre, setIsCadre }) {
-  const [primes, setPrimes] = useState("");
-  const [intpart, setIntpart] = useState("");
-  const [abondement, setabondement] = useState("");
-  const [isFiscalise, setIsFiscalise] = useState(false);
+  const [brutAnnuel, setBrutAnnuel] = useState("55000");
+  const [isCadre, setIsCadre] = useState(true);
 
-  const taux = isCadre ? 0.75 : 0.77;
-  const tauxAffichage = isCadre ? "25%" : "23%";
-
-  const brutValue = parseFloat(brutAnnuel) || 0;
-  const netValue = brutValue * taux;
-
-  const mensuelBrut = (brutValue / NB_MOIS).toFixed(2);
-  const mensuelNet = (netValue / NB_MOIS).toFixed(2);
-  const horaireBrut = (brutValue / (NB_MOIS * HEURES_MENSUELLES)).toFixed(2);
-  const horaireNet = (netValue / (NB_MOIS * HEURES_MENSUELLES)).toFixed(2);
-  const annuelBrut = brutAnnuel;
-  const annuelNet = netValue.toFixed(2);
-
-  const avantagesBrut =   (primes || 0) + (intpart || 0) + (abondement || 0);
-
-  const totalBrut = brutValue + avantagesBrut;
-  const totalBrutMensuel = (totalBrut / NB_MOIS).toFixed(2);
-  const totalNetMensuel = (taux * totalBrut / NB_MOIS).toFixed(2);
+  const [netMensuel, setNetMensuel] = useState(0);
+  function updateNetMensuel(value) {
+    setNetMensuel(value);
+  }
 
   return (
-    <Box sx={{ flexGrow: 1, mt: 4 }}>
-      <Grid
-        container
-        spacing={2}
-        justifyContent="center"
-        alignItems="flex-start"
-      >
-        <Grid item size={{ xs: 12, md: 6 }}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 2,
-            }}
-          >
-            <Typography
-              variant="subtitle1"
-              sx={{ fontWeight: "bold", textAlign: "center" }}
-            >
-              Salaire
-            </Typography>
-            <TableContainer component={Paper} sx={{ minWidth: 350 }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell />
-                    <TableCell>Brut (€)</TableCell>
-                    <TableCell>Net (€)</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>Horaire</TableCell>
-                    <TableCell>{horaireBrut}</TableCell>
-                    <TableCell>{horaireNet}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Mensuel</TableCell>
-                    <TableCell>{mensuelBrut}</TableCell>
-                    <TableCell>{mensuelNet}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Annuel</TableCell>
-                    <TableCell>
-                      <TextField
-                        type="number"
-                        value={annuelBrut}
-                        onChange={(e) => setBrutAnnuel(e.target.value)}
-                        inputProps={{ min: 0, step: 0.01 }}
-                        size="small"
-                        sx={{ width: 100 }}
-                      />
-                    </TableCell>
-                    <TableCell>{annuelNet}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        </Grid>
-        <Grid item size={{ xs: 12, md: 6 }}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: 2,
-            }}
-          >
-            <Typography
-              variant="subtitle1"
-              sx={{ fontWeight: "bold", textAlign: "center" }}
-            >
-              Avantages
-            </Typography>
-            <FormControl variant="standard" sx={{ width: "60%" }}>
-              <TextField
-                id="primes"
-                label="Primes brutes"
-                variant="standard"
-                value={primes}
-                onChange={(e) => setPrimes(parseFloat(e.target.value) || "")}
-                size="small"
-                fullWidth
-              />
-            </FormControl>
-            <FormControl
-              variant="standard"
-              sx={{
-                width: "60%",
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <TextField
-                id="intpart"
-                label="Intéressement / Participation"
-                variant="standard"
-                value={intpart}
-                onChange={(e) => setIntpart(parseFloat(e.target.value) || "")}
-                size="small"
-                fullWidth
-              />
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={isFiscalise}
-                    onChange={() => setIsFiscalise(!isFiscalise)}
-                    color="primary"
-                  />
-                }
-                label="Fiscalisé"
-                sx={{ ml: 2 }}
-              />
-            </FormControl>
-            <FormControl variant="standard" sx={{ width: "60%" }}>
-              <TextField
-                id="abondement"
-                label="Abondement"
-                variant="standard"
-                value={abondement}
-                onChange={(e) =>
-                  setabondement(parseFloat(e.target.value) || "")
-                }
-                size="small"
-                fullWidth
-              />
-            </FormControl>
-          </Box>
-        </Grid>
-        <Grid item size={{ xs: 12, md: 6 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-            <Typography>Nombre d&apos;heures : {HEURES_MENSUELLES}</Typography>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={isCadre}
-                  onChange={() => setIsCadre(!isCadre)}
-                  color="primary"
-                />
-              }
-              label={isCadre ? "Cadre" : "Non cadre"}
-              sx={{ mr: 2 }}
-            />
-            <Typography>{tauxAffichage}</Typography>
-            <Typography>Total brut annuel : {totalBrut}</Typography>
-            <Typography>Total brut mensuel : {totalBrutMensuel}</Typography>
-            <Typography>Total net mensuel : {totalNetMensuel}</Typography>
-
-          </Box>
-        </Grid>
-      </Grid>
+    <Box sx={{ flexGrow: 1, mt: 4, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+      <Salary
+        brutAnnuel={brutAnnuel}
+        setBrutAnnuel={setBrutAnnuel}
+        isCadre={isCadre}
+        setIsCadre={setIsCadre}
+        netMensuel={netMensuel}
+        updateNetMensuel={updateNetMensuel}
+      />
+      <RealEstateLoan netMensuel={netMensuel} />
     </Box>
   );
 }

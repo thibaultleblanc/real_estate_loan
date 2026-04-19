@@ -13,7 +13,7 @@ import {
   Switch,
   FormControlLabel,
 } from "@mui/material";
-import { formatAmount, HEURES_MENSUELLES } from "./utils/calculations";
+import { formatAmount } from "./utils/calculations";
 
 function Salary({ salary, metrics, onFieldChange }) {
   return (
@@ -121,7 +121,17 @@ function Salary({ salary, metrics, onFieldChange }) {
           >
             Avantages
           </Typography>
-          <FormControl variant="standard" sx={{ width: "80%", mb: 2 }}>
+          <FormControl
+            variant="standard"
+            sx={{
+              width: "80%",
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 2,
+              mb: 2,
+            }}
+          >
             <TextField
               id="primes"
               label="Primes brutes"
@@ -130,6 +140,19 @@ function Salary({ salary, metrics, onFieldChange }) {
               onChange={(e) => onFieldChange("primes", e.target.value)}
               size="small"
               fullWidth
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={salary.primesPegPerco}
+                  onChange={() =>
+                    onFieldChange("primesPegPerco", !salary.primesPegPerco)
+                  }
+                  color="primary"
+                />
+              }
+              label="PEG/PERCO"
+              sx={{ ml: 2 }}
             />
           </FormControl>
           <FormControl
@@ -144,29 +167,117 @@ function Salary({ salary, metrics, onFieldChange }) {
             }}
           >
             <TextField
-              id="intpart"
-              label="Intéressement / Participation"
+              id="primePartageValeur"
+              label="Prime de partage de la valeur"
               variant="standard"
-              value={salary.intpart}
-              onChange={(e) => onFieldChange("intpart", e.target.value)}
+              value={salary.primePartageValeur}
+              onChange={(e) =>
+                onFieldChange("primePartageValeur", e.target.value)
+              }
               size="small"
               fullWidth
             />
             <FormControlLabel
               control={
                 <Switch
-                  checked={salary.isFiscalise}
+                  checked={salary.primePartageValeurPegPerco}
                   onChange={() =>
-                    onFieldChange("isFiscalise", !salary.isFiscalise)
+                    onFieldChange(
+                      "primePartageValeurPegPerco",
+                      !salary.primePartageValeurPegPerco,
+                    )
                   }
                   color="primary"
                 />
               }
-              label="Fiscalisé"
+              label="PEG/PERCO"
               sx={{ ml: 2 }}
             />
           </FormControl>
-          <FormControl variant="standard" sx={{ width: "80%" }}>
+          <FormControl
+            variant="standard"
+            sx={{
+              width: "80%",
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 2,
+              mb: 2,
+            }}
+          >
+            <TextField
+              id="interessement"
+              label="Interessement"
+              variant="standard"
+              value={salary.interessement}
+              onChange={(e) => onFieldChange("interessement", e.target.value)}
+              size="small"
+              fullWidth
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={salary.interessementPegPerco}
+                  onChange={() =>
+                    onFieldChange(
+                      "interessementPegPerco",
+                      !salary.interessementPegPerco,
+                    )
+                  }
+                  color="primary"
+                />
+              }
+              label="PEG/PERCO"
+              sx={{ ml: 2 }}
+            />
+          </FormControl>
+          <FormControl
+            variant="standard"
+            sx={{
+              width: "80%",
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 2,
+              mb: 2,
+            }}
+          >
+            <TextField
+              id="participation"
+              label="Participation"
+              variant="standard"
+              value={salary.participation}
+              onChange={(e) => onFieldChange("participation", e.target.value)}
+              size="small"
+              fullWidth
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={salary.participationPegPerco}
+                  onChange={() =>
+                    onFieldChange(
+                      "participationPegPerco",
+                      !salary.participationPegPerco,
+                    )
+                  }
+                  color="primary"
+                />
+              }
+              label="PEG/PERCO"
+              sx={{ ml: 2 }}
+            />
+          </FormControl>
+          <FormControl
+            variant="standard"
+            sx={{
+              width: "80%",
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
             <TextField
               id="abondement"
               label="Abondement"
@@ -176,6 +287,22 @@ function Salary({ salary, metrics, onFieldChange }) {
               size="small"
               fullWidth
             />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={salary.abondementPegPerco}
+                  onChange={() =>
+                    onFieldChange(
+                      "abondementPegPerco",
+                      !salary.abondementPegPerco,
+                    )
+                  }
+                  color="primary"
+                />
+              }
+              label="PEG/PERCO"
+              sx={{ ml: 2 }}
+            />
           </FormControl>
         </Box>
       </Box>
@@ -184,36 +311,104 @@ function Salary({ salary, metrics, onFieldChange }) {
       <Box
         sx={{
           display: "flex",
-          alignItems: "center",
-          gap: 3,
+          flexDirection: "column",
+          gap: 2,
           mt: 2,
-          flexWrap: "wrap",
-          justifyContent: "center",
           width: "100%",
+          alignItems: "center",
         }}
       >
-        <Typography>Nombre d&apos;heures : {HEURES_MENSUELLES}</Typography>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={salary.isCadre}
-              onChange={() => onFieldChange("isCadre", !salary.isCadre)}
-              color="primary"
-            />
-          }
-          label={salary.isCadre ? "Cadre" : "Non cadre"}
-          sx={{ mr: 2 }}
-        />
-        <Typography>Taux : {metrics.tauxAffichage}</Typography>
-        <Typography>
-          Total brut annuel : {formatAmount(metrics.totalBrut)}
-        </Typography>
-        <Typography>
-          Total brut mensuel : {formatAmount(metrics.totalBrutMensuel)}
-        </Typography>
-        <Typography>
-          Total net mensuel : {formatAmount(metrics.totalNetMensuel)}
-        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 3,
+            flexWrap: "wrap",
+            justifyContent: "center",
+            width: "100%",
+          }}
+        >
+          <Typography>
+            Nombre d&apos;heures : {formatAmount(metrics.heuresMensuelles)}
+          </Typography>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={salary.isCadre}
+                onChange={() => onFieldChange("isCadre", !salary.isCadre)}
+                color="primary"
+              />
+            }
+            label={salary.isCadre ? "Cadre" : "Non cadre"}
+            sx={{ mr: 2 }}
+          />
+          <Typography>
+            Taux charges salariales : {metrics.tauxAffichage}
+          </Typography>
+          <TextField
+            id="tauxImpot"
+            label="Taux d'impot (%)"
+            type="number"
+            value={salary.tauxImpot}
+            onChange={(e) => onFieldChange("tauxImpot", e.target.value)}
+            inputProps={{ min: 0, max: 100, step: 0.1 }}
+            size="small"
+            sx={{ width: 150 }}
+          />
+        </Box>
+
+        <TableContainer
+          component={Paper}
+          sx={{ width: { xs: "100%", md: "90%" } }}
+        >
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell />
+                <TableCell align="right">Annuel (€)</TableCell>
+                <TableCell align="right">Mensuel (€)</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow>
+                <TableCell>Remuneration brute totale</TableCell>
+                <TableCell align="right">
+                  {formatAmount(metrics.totalBrut)}
+                </TableCell>
+                <TableCell align="right">
+                  {formatAmount(metrics.totalBrutMensuel)}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Remuneration nette totale</TableCell>
+                <TableCell align="right">
+                  {formatAmount(metrics.totalNetAnnuel)}
+                </TableCell>
+                <TableCell align="right">
+                  {formatAmount(metrics.totalNetMensuel)}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Base imposable nette</TableCell>
+                <TableCell align="right">
+                  {formatAmount(metrics.baseImposableAnnuelle)}
+                </TableCell>
+                <TableCell align="right">
+                  {formatAmount(metrics.baseImposableMensuelle)}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Net apres impot</TableCell>
+                <TableCell align="right">
+                  {formatAmount(metrics.totalNetApresImpotAnnuel)}
+                </TableCell>
+                <TableCell align="right">
+                  {formatAmount(metrics.totalNetApresImpotMensuel)}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Box>
     </Box>
   );

@@ -1,5 +1,6 @@
 import { Alert, Box, Button, Stack, Typography } from "@mui/material";
 import { useEffect, useMemo, useRef, useState } from "react";
+import FactorySettingsDrawer from "./FactorySettingsDrawer";
 import Header from "./Header";
 import Salary from "./Salary";
 import RealEstateLoan from "./RealEstateLoan";
@@ -8,6 +9,7 @@ import {
   calculateLoanMetrics,
   calculateSalaryMetrics,
 } from "./utils/calculations";
+import { DEFAULT_FACTORY_SETTINGS } from "./utils/factorySettings";
 import {
   createDefaultScenario,
   exportScenarioToFile,
@@ -20,6 +22,7 @@ import {
 function MainView() {
   const [scenario, setScenario] = useState(() => loadScenarioFromStorage());
   const [errorMessage, setErrorMessage] = useState("");
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -27,16 +30,17 @@ function MainView() {
   }, [scenario]);
 
   const salaryMetrics = useMemo(
-    () => calculateSalaryMetrics(scenario.salary),
-    [scenario.salary],
+    () => calculateSalaryMetrics(scenario.salary, scenario.settings),
+    [scenario.salary, scenario.settings],
   );
   const loanMetrics = useMemo(
     () =>
       calculateLoanMetrics({
         netMensuel: salaryMetrics.totalNetMensuel,
         loan: scenario.loan,
+        settings: scenario.settings,
       }),
-    [salaryMetrics.totalNetMensuel, scenario.loan],
+    [salaryMetrics.totalNetMensuel, scenario.loan, scenario.settings],
   );
 
   function setCurrentStep(nextStep) {
@@ -63,6 +67,23 @@ function MainView() {
         ...prev.loan,
         [field]: value,
       },
+    }));
+  }
+
+  function updateSettingField(field, value) {
+    setScenario((prev) => ({
+      ...prev,
+      settings: {
+        ...prev.settings,
+        [field]: value,
+      },
+    }));
+  }
+
+  function resetFactorySettings() {
+    setScenario((prev) => ({
+      ...prev,
+      settings: { ...DEFAULT_FACTORY_SETTINGS },
     }));
   }
 
@@ -104,6 +125,7 @@ function MainView() {
       return (
         <Salary
           salary={scenario.salary}
+          settings={scenario.settings}
           metrics={salaryMetrics}
           onFieldChange={updateSalaryField}
         />
@@ -114,6 +136,7 @@ function MainView() {
       return (
         <RealEstateLoan
           loan={scenario.loan}
+          settings={scenario.settings}
           metrics={loanMetrics}
           onFieldChange={updateLoanField}
         />
@@ -131,6 +154,13 @@ function MainView() {
       <Header
         currentStep={scenario.currentStep}
         onStepChange={setCurrentStep}
+      />
+      <FactorySettingsDrawer
+        open={isSettingsOpen}
+        onClose={() => setIsSettingsOpen((prev) => !prev)}
+        settings={scenario.settings}
+        onSettingChange={updateSettingField}
+        onReset={resetFactorySettings}
       />
       <Box
         sx={{

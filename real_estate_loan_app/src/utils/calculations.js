@@ -1,43 +1,99 @@
-export const HEURES_MENSUELLES = 151.67;
-export const NB_MOIS = 12;
-export const DEBT_RATIO = 0.35;
+import { DEFAULT_FACTORY_SETTINGS } from "./factorySettings";
 
 function parseAmount(value) {
   const parsed = Number.parseFloat(value);
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-export function getSalaryRate(isCadre) {
-  return isCadre ? 0.75 : 0.77;
+export function getSalaryRate(isCadre, settings = DEFAULT_FACTORY_SETTINGS) {
+  return isCadre ? settings.tauxCadre : settings.tauxNonCadre;
 }
 
-export function calculateSalaryMetrics(salary) {
+export function calculateSalaryMetrics(
+  salary,
+  settings = DEFAULT_FACTORY_SETTINGS,
+) {
   const brutValue = parseAmount(salary.brutAnnuel);
+  const tauxImpot = Math.max(0, Math.min(100, parseAmount(salary.tauxImpot)));
+  const tauxImpotDecimal = tauxImpot / 100;
   const primesValue = parseAmount(salary.primes);
-  const intpartValue = parseAmount(salary.intpart);
+  const primePartageValeurValue = parseAmount(salary.primePartageValeur);
+  const interessementValue = parseAmount(salary.interessement);
+  const participationValue = parseAmount(salary.participation);
   const abondementValue = parseAmount(salary.abondement);
-  const avantagesBrut = primesValue + intpartValue + abondementValue;
+  const avantagesBrut =
+    primesValue +
+    primePartageValeurValue +
+    interessementValue +
+    participationValue +
+    abondementValue;
 
-  const taux = getSalaryRate(salary.isCadre);
+  const taux = getSalaryRate(salary.isCadre, settings);
   const netValue = brutValue * taux;
+  const netPrimes = (salary.primesPegPerco ? 1 : taux) * primesValue;
+  const netPrimePartageValeur =
+    (salary.primePartageValeurPegPerco ? 1 : taux) * primePartageValeurValue;
+  const netInteressement =
+    (salary.interessementPegPerco ? 1 : taux) * interessementValue;
+  const netParticipation =
+    (salary.participationPegPerco ? 1 : taux) * participationValue;
+  const netAbondement =
+    (salary.abondementPegPerco ? 1 : taux) * abondementValue;
+  const taxablePrimes = salary.primesPegPerco ? 0 : netPrimes;
+  const taxablePrimePartageValeur = salary.primePartageValeurPegPerco
+    ? 0
+    : netPrimePartageValeur;
+  const taxableInteressement = salary.interessementPegPerco
+    ? 0
+    : netInteressement;
+  const taxableParticipation = salary.participationPegPerco
+    ? 0
+    : netParticipation;
+  const taxableAbondement = salary.abondementPegPerco ? 0 : netAbondement;
+  const avantagesNet =
+    netPrimes +
+    netPrimePartageValeur +
+    netInteressement +
+    netParticipation +
+    netAbondement;
   const totalBrut = brutValue + avantagesBrut;
-  const totalNetMensuel = (taux * totalBrut) / NB_MOIS;
+  const totalNetAnnuel = netValue + avantagesNet;
+  const baseImposableAnnuelle =
+    netValue +
+    taxablePrimes +
+    taxablePrimePartageValeur +
+    taxableInteressement +
+    taxableParticipation +
+    taxableAbondement;
+  const impotAnnuel = baseImposableAnnuelle * tauxImpotDecimal;
+  const totalNetApresImpotAnnuel = totalNetAnnuel - impotAnnuel;
 
   return {
     taux,
-    tauxAffichage: salary.isCadre ? "25%" : "23%",
+    tauxAffichage: `${((1 - taux) * 100).toFixed(0)}%`,
+    tauxImpot,
+    heuresMensuelles: settings.heuresMensuelles,
+    nbMois: settings.nbMois,
     brutValue,
     netValue,
-    mensuelBrut: brutValue / NB_MOIS,
-    mensuelNet: netValue / NB_MOIS,
-    horaireBrut: brutValue / (NB_MOIS * HEURES_MENSUELLES),
-    horaireNet: netValue / (NB_MOIS * HEURES_MENSUELLES),
+    mensuelBrut: brutValue / settings.nbMois,
+    mensuelNet: netValue / settings.nbMois,
+    horaireBrut: brutValue / (settings.nbMois * settings.heuresMensuelles),
+    horaireNet: netValue / (settings.nbMois * settings.heuresMensuelles),
     annuelBrut: brutValue,
     annuelNet: netValue,
     avantagesBrut,
+    avantagesNet,
     totalBrut,
-    totalBrutMensuel: totalBrut / NB_MOIS,
-    totalNetMensuel,
+    totalNetAnnuel,
+    totalBrutMensuel: totalBrut / settings.nbMois,
+    totalNetMensuel: totalNetAnnuel / settings.nbMois,
+    baseImposableAnnuelle,
+    baseImposableMensuelle: baseImposableAnnuelle / settings.nbMois,
+    impotAnnuel,
+    impotMensuel: impotAnnuel / settings.nbMois,
+    totalNetApresImpotAnnuel,
+    totalNetApresImpotMensuel: totalNetApresImpotAnnuel / settings.nbMois,
   };
 }
 
@@ -54,13 +110,15 @@ export function getMontantMax(mensualite, duree, tauxAnnuel) {
 export function calculateLoanMetrics({
   netMensuel,
   loan,
-  debtRatio = DEBT_RATIO,
+  settings = DEFAULT_FACTORY_SETTINGS,
 }) {
-  const mensualiteMax = netMensuel * debtRatio;
+  const mensualiteMax = netMensuel * settings.tauxEndettement;
   const montantMax = getMontantMax(mensualiteMax, loan.duree, loan.tauxAnnuel);
   const apportValue = parseAmount(loan.apport);
   const capaciteAchatBrut = montantMax + apportValue;
-  const tauxFraisNotaire = loan.isNeuf ? 0.02 : 0.08;
+  const tauxFraisNotaire = loan.isNeuf
+    ? settings.fraisNotaireNeuf
+    : settings.fraisNotaireAncien;
   const fraisNotaire = capaciteAchatBrut * tauxFraisNotaire;
 
   return {
@@ -68,6 +126,7 @@ export function calculateLoanMetrics({
     montantMax,
     apportValue,
     tauxFraisNotaire,
+    tauxEndettement: settings.tauxEndettement,
     fraisNotaire,
     capaciteAchatNet: capaciteAchatBrut - fraisNotaire,
   };

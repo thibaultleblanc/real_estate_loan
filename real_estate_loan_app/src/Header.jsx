@@ -42,11 +42,11 @@ function Header({ currentStep, onStepChange }) {
             style: { height: 3, backgroundColor: "#FCD34D" },
           }}
           sx={{
-            bgcolor: "rgba(255,255,255,0.1)",
+            bgcolor: "rgba(255,255,255,0.2)",
             borderRadius: 2,
             minHeight: 54,
             ".MuiTab-root": {
-              color: "rgba(255,255,255,0.8)",
+              color: "rgba(255,255,255,0.95)",
               minHeight: 54,
               fontWeight: 700,
               letterSpacing: 0.5,

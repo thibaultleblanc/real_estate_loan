@@ -7,9 +7,9 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { DEBT_RATIO, formatAmount } from "./utils/calculations";
+import { formatAmount } from "./utils/calculations";
 
-function RealEstateLoan({ loan, metrics, onFieldChange }) {
+function RealEstateLoan({ loan, settings, metrics, onFieldChange }) {
   function updateDuree(value) {
     if (Array.isArray(value)) {
       onFieldChange("duree", value[0]);
@@ -105,8 +105,8 @@ function RealEstateLoan({ loan, metrics, onFieldChange }) {
             }
             label={
               loan.isNeuf
-                ? "Logement neuf (2% frais de notaire)"
-                : "Logement ancien (8% frais de notaire)"
+                ? `Logement neuf (${Math.round(settings.fraisNotaireNeuf * 100)}% frais de notaire)`
+                : `Logement ancien (${Math.round(settings.fraisNotaireAncien * 100)}% frais de notaire)`
             }
             sx={{ mt: 1 }}
           />
@@ -123,8 +123,8 @@ function RealEstateLoan({ loan, metrics, onFieldChange }) {
           }}
         >
           <Typography>
-            Mensualité maximale ({Math.round(DEBT_RATIO * 100)}% du net mensuel)
-            : {formatAmount(metrics.mensualiteMax)} €
+            Mensualité maximale ({Math.round(metrics.tauxEndettement * 100)}% du
+            net mensuel) : {formatAmount(metrics.mensualiteMax)} €
           </Typography>
           <Typography>
             Montant maximal empruntable : {formatAmount(metrics.montantMax, 0)}{" "}

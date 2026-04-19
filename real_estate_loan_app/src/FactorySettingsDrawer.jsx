@@ -46,6 +46,10 @@ const SETTINGS_SECTIONS = [
     ],
   },
   {
+    title: "Impots",
+    fields: [],
+  },
+  {
     title: "Emprunt",
     fields: [
       {
@@ -95,6 +99,38 @@ function FactorySettingsDrawer({
   function handleNumberChange(field, value) {
     const parsed = Number.parseFloat(value);
     onSettingChange(field, Number.isFinite(parsed) ? parsed : 0);
+  }
+
+  function handleTaxBracketChange(index, key, value) {
+    const nextTaxBrackets = (settings.taxBrackets || []).map((bracket) => ({
+      ...bracket,
+    }));
+    if (!nextTaxBrackets[index]) {
+      return;
+    }
+
+    const parsed = Number.parseFloat(value);
+    if (key === "rate") {
+      const ratePercent = Number.isFinite(parsed) ? parsed : 0;
+      nextTaxBrackets[index].rate = Math.max(0, Math.min(1, ratePercent / 100));
+    } else {
+      const newUpperBound = Number.isFinite(parsed)
+        ? Math.max(1, Math.round(parsed))
+        : 1;
+      nextTaxBrackets[index].upTo = newUpperBound;
+
+      // Keep successive thresholds strictly increasing.
+      for (let i = index + 1; i < nextTaxBrackets.length - 1; i += 1) {
+        const previousUpTo = Number(nextTaxBrackets[i - 1].upTo) || 0;
+        const currentUpTo = Number(nextTaxBrackets[i].upTo) || previousUpTo + 1;
+        nextTaxBrackets[i].upTo = Math.max(
+          previousUpTo + 1,
+          Math.round(currentUpTo),
+        );
+      }
+    }
+
+    onSettingChange("taxBrackets", nextTaxBrackets);
   }
 
   function toggleAllSections() {
@@ -210,26 +246,103 @@ function FactorySettingsDrawer({
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ px: 1.5, pb: 1.5, pt: 0 }}>
-                  <Stack spacing={1.25}>
-                    {section.fields.map((field) => (
-                      <TextField
-                        key={field.key}
-                        label={field.label}
-                        type="number"
-                        value={settings[field.key]}
-                        onChange={(event) =>
-                          handleNumberChange(field.key, event.target.value)
-                        }
-                        inputProps={{
-                          min: field.min,
-                          max: field.max,
-                          step: field.step,
-                        }}
-                        size="small"
-                        fullWidth
-                      />
-                    ))}
-                  </Stack>
+                  {section.title === "Impots" ? (
+                    <Stack spacing={1.25}>
+                      {(settings.taxBrackets || []).map((bracket, index) => {
+                        const isLast =
+                          index === (settings.taxBrackets || []).length - 1;
+                        const lowerBound =
+                          index === 0
+                            ? 0
+                            : Number(
+                                settings.taxBrackets[index - 1]?.upTo || 0,
+                              ) + 1;
+                        return (
+                          <Box
+                            key={`tax-bracket-${index}`}
+                            sx={{
+                              p: 1,
+                              border: "1px solid #e5e7eb",
+                              borderRadius: 1.5,
+                              bgcolor: "#fafafa",
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{ color: "text.secondary" }}
+                            >
+                              {isLast
+                                ? `Tranche ${index + 1} (a partir de ${lowerBound} €)`
+                                : `Tranche ${index + 1} (${lowerBound} € a ${bracket.upTo} €)`}
+                            </Typography>
+                            <Stack
+                              direction={{ xs: "column", sm: "row" }}
+                              spacing={1}
+                              sx={{ mt: 0.6 }}
+                            >
+                              <TextField
+                                label={isLast ? "Plafond" : "Plafond (€)"}
+                                type="number"
+                                value={isLast ? "" : bracket.upTo}
+                                onChange={(event) =>
+                                  handleTaxBracketChange(
+                                    index,
+                                    "upTo",
+                                    event.target.value,
+                                  )
+                                }
+                                inputProps={{ min: 0, step: 1 }}
+                                size="small"
+                                fullWidth
+                                disabled={isLast}
+                                helperText={
+                                  isLast
+                                    ? "Derniere tranche: sans plafond"
+                                    : undefined
+                                }
+                              />
+                              <TextField
+                                label="Taux (%)"
+                                type="number"
+                                value={(Number(bracket.rate) * 100).toFixed(2)}
+                                onChange={(event) =>
+                                  handleTaxBracketChange(
+                                    index,
+                                    "rate",
+                                    event.target.value,
+                                  )
+                                }
+                                inputProps={{ min: 0, max: 100, step: 0.1 }}
+                                size="small"
+                                fullWidth
+                              />
+                            </Stack>
+                          </Box>
+                        );
+                      })}
+                    </Stack>
+                  ) : (
+                    <Stack spacing={1.25}>
+                      {section.fields.map((field) => (
+                        <TextField
+                          key={field.key}
+                          label={field.label}
+                          type="number"
+                          value={settings[field.key]}
+                          onChange={(event) =>
+                            handleNumberChange(field.key, event.target.value)
+                          }
+                          inputProps={{
+                            min: field.min,
+                            max: field.max,
+                            step: field.step,
+                          }}
+                          size="small"
+                          fullWidth
+                        />
+                      ))}
+                    </Stack>
+                  )}
                 </AccordionDetails>
               </Accordion>
             ))}

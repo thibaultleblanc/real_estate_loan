@@ -85,6 +85,33 @@ function pickBoundedNumber(value, fallback, min, max) {
   return Math.min(max, Math.max(min, parsed));
 }
 
+function normalizeTaxBrackets(rawTaxBrackets, fallbackTaxBrackets) {
+  if (
+    !Array.isArray(rawTaxBrackets) ||
+    rawTaxBrackets.length !== fallbackTaxBrackets.length
+  ) {
+    return fallbackTaxBrackets.map((bracket) => ({ ...bracket }));
+  }
+
+  let previousUpperBound = 0;
+
+  return fallbackTaxBrackets.map((fallbackBracket, index) => {
+    const rawBracket = rawTaxBrackets[index] || {};
+    const isLast = index === fallbackTaxBrackets.length - 1;
+    const rate = pickBoundedNumber(rawBracket.rate, fallbackBracket.rate, 0, 1);
+
+    if (isLast) {
+      return { upTo: null, rate };
+    }
+
+    const parsedUpperBound = pickNumber(rawBracket.upTo, fallbackBracket.upTo);
+    const upTo = Math.max(previousUpperBound + 1, parsedUpperBound);
+    previousUpperBound = upTo;
+
+    return { upTo, rate };
+  });
+}
+
 export function normalizeScenario(rawScenario) {
   const fallback = deepCloneDefaultScenario();
   if (!rawScenario || typeof rawScenario !== "object") {
@@ -149,6 +176,10 @@ export function normalizeScenario(rawScenario) {
         fallback.settings.fraisNotaireAncien,
         0,
         1,
+      ),
+      taxBrackets: normalizeTaxBrackets(
+        settingsRaw.taxBrackets,
+        fallback.settings.taxBrackets,
       ),
     },
     salary: {

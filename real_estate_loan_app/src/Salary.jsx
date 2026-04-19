@@ -14,8 +14,9 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import { formatAmount } from "./utils/calculations";
+import TaxBreakdown from "./TaxBreakdown";
 
-function Salary({ salary, metrics, onFieldChange }) {
+function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
   return (
     <Box
       sx={{
@@ -345,15 +346,19 @@ function Salary({ salary, metrics, onFieldChange }) {
           <Typography>
             Taux charges salariales : {metrics.tauxAffichage}
           </Typography>
-          <TextField
-            id="tauxImpot"
-            label="Taux d'impot (%)"
-            type="number"
-            value={salary.tauxImpot}
-            onChange={(e) => onFieldChange("tauxImpot", e.target.value)}
-            inputProps={{ min: 0, max: 100, step: 0.1 }}
-            size="small"
-            sx={{ width: 150 }}
+        </Box>
+
+        <Box sx={{ width: { xs: "100%", md: "90%" } }}>
+          <TaxBreakdown
+            taxBreakdown={metrics.taxBreakdown}
+            annualTax={metrics.impotAnnuel}
+            monthlyTax={metrics.impotMensuel}
+            nbMois={metrics.nbMois}
+            taxRate={metrics.tauxImpot}
+            isSliderTouched={isTaxSliderTouched}
+            onTaxRateChange={(nextValue) =>
+              onFieldChange("tauxImpot", nextValue)
+            }
           />
         </Box>
 

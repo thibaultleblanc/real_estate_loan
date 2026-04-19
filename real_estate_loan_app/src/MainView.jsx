@@ -8,6 +8,7 @@ import Rentability from "./Rentability";
 import {
   calculateLoanMetrics,
   calculateSalaryMetrics,
+  estimateTaxRateFromTaxableIncome,
 } from "./utils/calculations";
 import { DEFAULT_FACTORY_SETTINGS } from "./utils/factorySettings";
 import {
@@ -23,6 +24,7 @@ function MainView() {
   const [scenario, setScenario] = useState(() => loadScenarioFromStorage());
   const [errorMessage, setErrorMessage] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isTaxSliderTouched, setIsTaxSliderTouched] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -43,6 +45,31 @@ function MainView() {
     [salaryMetrics.totalNetMensuel, scenario.loan, scenario.settings],
   );
 
+  useEffect(() => {
+    const suggestedTaxRate = estimateTaxRateFromTaxableIncome(
+      salaryMetrics.baseImposableAnnuelle,
+      scenario.settings,
+    );
+
+    setScenario((prev) => {
+      const prevTaxRate = Number.parseFloat(prev.salary.tauxImpot);
+      if (
+        Number.isFinite(prevTaxRate) &&
+        Math.abs(prevTaxRate - suggestedTaxRate) < 0.05
+      ) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        salary: {
+          ...prev.salary,
+          tauxImpot: String(suggestedTaxRate),
+        },
+      };
+    });
+  }, [salaryMetrics.baseImposableAnnuelle]);
+
   function setCurrentStep(nextStep) {
     setScenario((prev) => ({
       ...prev,
@@ -51,6 +78,12 @@ function MainView() {
   }
 
   function updateSalaryField(field, value) {
+    if (field === "tauxImpot") {
+      setIsTaxSliderTouched(true);
+    } else {
+      setIsTaxSliderTouched(false);
+    }
+
     setScenario((prev) => ({
       ...prev,
       salary: {
@@ -83,13 +116,19 @@ function MainView() {
   function resetFactorySettings() {
     setScenario((prev) => ({
       ...prev,
-      settings: { ...DEFAULT_FACTORY_SETTINGS },
+      settings: {
+        ...DEFAULT_FACTORY_SETTINGS,
+        taxBrackets: DEFAULT_FACTORY_SETTINGS.taxBrackets.map((bracket) => ({
+          ...bracket,
+        })),
+      },
     }));
   }
 
   function handleReset() {
     const defaultScenario = createDefaultScenario();
     setScenario(defaultScenario);
+    setIsTaxSliderTouched(false);
     resetScenarioStorage();
     setErrorMessage("");
   }
@@ -112,6 +151,7 @@ function MainView() {
     try {
       const importedScenario = await importScenarioFromFile(file);
       setScenario(importedScenario);
+      setIsTaxSliderTouched(false);
       setErrorMessage("");
     } catch (error) {
       setErrorMessage(error.message || "Echec de l'import du scenario.");
@@ -127,6 +167,7 @@ function MainView() {
           salary={scenario.salary}
           settings={scenario.settings}
           metrics={salaryMetrics}
+          isTaxSliderTouched={isTaxSliderTouched}
           onFieldChange={updateSalaryField}
         />
       );

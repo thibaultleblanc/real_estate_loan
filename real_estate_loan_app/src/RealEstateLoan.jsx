@@ -1,35 +1,30 @@
-import { Box, Typography, TextField, FormControl, Slider, FormControlLabel, Switch } from "@mui/material";
-import { useState } from "react";
+import {
+  Box,
+  FormControl,
+  FormControlLabel,
+  Slider,
+  Switch,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { DEBT_RATIO, formatAmount } from "./utils/calculations";
 
-// Fonction de calcul de mensualité maximale (35% du net mensuel)
-function getMensualiteMax(netMensuel) {
-  return netMensuel * 0.35;
-}
+function RealEstateLoan({ loan, metrics, onFieldChange }) {
+  function updateDuree(value) {
+    if (Array.isArray(value)) {
+      onFieldChange("duree", value[0]);
+      return;
+    }
+    onFieldChange("duree", value);
+  }
 
-// Fonction de calcul du montant maximal empruntable
-function getMontantMax(mensualite, duree, tauxAnnuel) {
-  const n = duree * 12;
-  const tauxMensuel = tauxAnnuel / 12 / 100;
-  if (tauxMensuel === 0) return mensualite * n;
-  return (
-    (mensualite * (1 - Math.pow(1 + tauxMensuel, -n))) / tauxMensuel
-  );
-}
-
-function RealEstateLoan({ netMensuel }) {
-  const [duree, setDuree] = useState(20); // durée en années
-  const [tauxAnnuel, setTauxAnnuel] = useState(3.5); // taux d'intérêt annuel en %
-  const [apport, setApport] = useState(0); // nouvel état pour l'apport
-  const [isNeuf, setIsNeuf] = useState(false); // false = ancien, true = neuf
-
-  const mensualiteMax = getMensualiteMax(netMensuel);
-  const montantMax = getMontantMax(mensualiteMax, duree, tauxAnnuel);
-  const capaciteAchatBrut = montantMax + Number(apport);
-
-  // Frais de notaire : 2% neuf, 8% ancien
-  const tauxFraisNotaire = isNeuf ? 0.02 : 0.08;
-  const fraisNotaire = capaciteAchatBrut * tauxFraisNotaire;
-  const capaciteAchatNet = capaciteAchatBrut - fraisNotaire;
+  function updateTauxAnnuel(nextValue) {
+    const parsed = Number.parseFloat(nextValue);
+    onFieldChange(
+      "tauxAnnuel",
+      Number.isFinite(parsed) ? Math.max(0, parsed) : 0,
+    );
+  }
 
   return (
     <Box
@@ -42,11 +37,11 @@ function RealEstateLoan({ netMensuel }) {
         width: "100%",
       }}
     >
-            {/* Bandeau Revenus */}
+      {/* Bandeau Revenus */}
       <Box
         sx={{
           width: { xs: "95%", md: "90%" },
-          background: "#1976d2",
+          background: "linear-gradient(120deg, #4F46E5 0%, #8B5CF6 100%)",
           color: "#fff",
           py: 1,
           px: 2,
@@ -72,21 +67,21 @@ function RealEstateLoan({ netMensuel }) {
       >
         {/* Colonne Inputs */}
         <FormControl sx={{ width: { xs: "100%", md: "50%" } }}>
-          <Typography gutterBottom>Durée (années) : {duree}</Typography>
+          <Typography gutterBottom>Duree (annees) : {loan.duree}</Typography>
           <Slider
-            value={duree}
+            value={loan.duree}
             min={10}
             max={25}
             step={1}
-            onChange={(_, value) => setDuree(value)}
+            onChange={(_, value) => updateDuree(value)}
             valueLabelDisplay="auto"
             sx={{ mb: 2 }}
           />
           <TextField
             label="Taux annuel (%)"
             type="number"
-            value={tauxAnnuel}
-            onChange={(e) => setTauxAnnuel(Number(e.target.value))}
+            value={loan.tauxAnnuel}
+            onChange={(e) => updateTauxAnnuel(e.target.value)}
             size="small"
             inputProps={{ min: 0, step: 0.01 }}
             sx={{ mb: 2 }}
@@ -94,8 +89,8 @@ function RealEstateLoan({ netMensuel }) {
           <TextField
             label="Apport (€)"
             type="number"
-            value={apport}
-            onChange={(e) => setApport(e.target.value)}
+            value={loan.apport}
+            onChange={(e) => onFieldChange("apport", e.target.value)}
             size="small"
             inputProps={{ min: 0, step: 1000 }}
             sx={{ mb: 2 }}
@@ -103,12 +98,16 @@ function RealEstateLoan({ netMensuel }) {
           <FormControlLabel
             control={
               <Switch
-                checked={isNeuf}
-                onChange={() => setIsNeuf(!isNeuf)}
+                checked={loan.isNeuf}
+                onChange={() => onFieldChange("isNeuf", !loan.isNeuf)}
                 color="primary"
               />
             }
-            label={isNeuf ? "Logement neuf (2% frais de notaire)" : "Logement ancien (8% frais de notaire)"}
+            label={
+              loan.isNeuf
+                ? "Logement neuf (2% frais de notaire)"
+                : "Logement ancien (8% frais de notaire)"
+            }
             sx={{ mt: 1 }}
           />
         </FormControl>
@@ -124,19 +123,22 @@ function RealEstateLoan({ netMensuel }) {
           }}
         >
           <Typography>
-            Mensualité maximale (33% du net mensuel) : {mensualiteMax.toFixed(2)} €
+            Mensualité maximale ({Math.round(DEBT_RATIO * 100)}% du net mensuel)
+            : {formatAmount(metrics.mensualiteMax)} €
           </Typography>
           <Typography>
-            Montant maximal empruntable : {montantMax.toFixed(0)} €
+            Montant maximal empruntable : {formatAmount(metrics.montantMax, 0)}{" "}
+            €
           </Typography>
           <Typography>
-            Apport personnel : {Number(apport).toFixed(0)} €
+            Apport personnel : {formatAmount(metrics.apportValue, 0)} €
           </Typography>
           <Typography>
-            Frais de notaire estimés : {fraisNotaire.toFixed(0)} €
+            Frais de notaire estimés : {formatAmount(metrics.fraisNotaire, 0)} €
           </Typography>
           <Typography sx={{ fontWeight: "bold" }}>
-            Capacité d&apos;achat nette : {capaciteAchatNet.toFixed(0)} €
+            Capacité d&apos;achat nette :{" "}
+            {formatAmount(metrics.capaciteAchatNet, 0)} €
           </Typography>
         </Box>
       </Box>

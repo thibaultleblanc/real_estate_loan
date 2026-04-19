@@ -1,0 +1,19 @@
+.app-shell {
+  position: relative;
+  animation: app-fade-in 320ms ease-out;
+}
+
+.main-view {
+  width: 100%;
+}
+
+@keyframes app-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

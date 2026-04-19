@@ -13,36 +13,9 @@ import {
   Switch,
   FormControlLabel,
 } from "@mui/material";
-import { useState } from "react";
+import { formatAmount, HEURES_MENSUELLES } from "./utils/calculations";
 
-const HEURES_MENSUELLES = 151.67;
-const NB_MOIS = 12;
-
-function Salary({ brutAnnuel, setBrutAnnuel, isCadre, setIsCadre, updateNetMensuel }) {
-  const [primes, setPrimes] = useState("");
-  const [intpart, setIntpart] = useState("");
-  const [abondement, setAbondement] = useState("");
-  const [isFiscalise, setIsFiscalise] = useState(false);
-
-  const taux = isCadre ? 0.75 : 0.77;
-  const tauxAffichage = isCadre ? "25%" : "23%";
-
-  const brutValue = parseFloat(brutAnnuel) || 0;
-  const netValue = brutValue * taux;
-
-  const mensuelBrut = (brutValue / NB_MOIS).toFixed(2);
-  const mensuelNet = (netValue / NB_MOIS).toFixed(2);
-  const horaireBrut = (brutValue / (NB_MOIS * HEURES_MENSUELLES)).toFixed(2);
-  const horaireNet = (netValue / (NB_MOIS * HEURES_MENSUELLES)).toFixed(2);
-  const annuelBrut = brutAnnuel;
-  const annuelNet = netValue.toFixed(2);
-
-  const avantagesBrut = (primes || 0) + (intpart || 0) + (abondement || 0);
-
-  const totalBrut = brutValue + avantagesBrut;
-  const totalBrutMensuel = (totalBrut / NB_MOIS).toFixed(2);
-  const totalNetMensuel = (taux * totalBrut / NB_MOIS).toFixed(2);
-  updateNetMensuel(totalNetMensuel);
+function Salary({ salary, metrics, onFieldChange }) {
   return (
     <Box
       sx={{
@@ -57,7 +30,7 @@ function Salary({ brutAnnuel, setBrutAnnuel, isCadre, setIsCadre, updateNetMensu
       <Box
         sx={{
           width: { xs: "95%", md: "90%" },
-          background: "#1976d2",
+          background: "linear-gradient(120deg, #4F46E5 0%, #8B5CF6 100%)",
           color: "#fff",
           py: 1,
           px: 2,
@@ -103,27 +76,29 @@ function Salary({ brutAnnuel, setBrutAnnuel, isCadre, setIsCadre, updateNetMensu
               <TableBody>
                 <TableRow>
                   <TableCell>Horaire</TableCell>
-                  <TableCell>{horaireBrut}</TableCell>
-                  <TableCell>{horaireNet}</TableCell>
+                  <TableCell>{formatAmount(metrics.horaireBrut)}</TableCell>
+                  <TableCell>{formatAmount(metrics.horaireNet)}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Mensuel</TableCell>
-                  <TableCell>{mensuelBrut}</TableCell>
-                  <TableCell>{mensuelNet}</TableCell>
+                  <TableCell>{formatAmount(metrics.mensuelBrut)}</TableCell>
+                  <TableCell>{formatAmount(metrics.mensuelNet)}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Annuel</TableCell>
                   <TableCell>
                     <TextField
                       type="number"
-                      value={brutAnnuel}
-                      onChange={(e) => setBrutAnnuel(e.target.value)}
+                      value={salary.brutAnnuel}
+                      onChange={(e) =>
+                        onFieldChange("brutAnnuel", e.target.value)
+                      }
                       inputProps={{ min: 0, step: 0.01 }}
                       size="small"
                       sx={{ width: 100 }}
                     />
                   </TableCell>
-                  <TableCell>{annuelNet}</TableCell>
+                  <TableCell>{formatAmount(metrics.annuelNet)}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -151,8 +126,8 @@ function Salary({ brutAnnuel, setBrutAnnuel, isCadre, setIsCadre, updateNetMensu
               id="primes"
               label="Primes brutes"
               variant="standard"
-              value={primes}
-              onChange={(e) => setPrimes(parseFloat(e.target.value) || "")}
+              value={salary.primes}
+              onChange={(e) => onFieldChange("primes", e.target.value)}
               size="small"
               fullWidth
             />
@@ -172,16 +147,18 @@ function Salary({ brutAnnuel, setBrutAnnuel, isCadre, setIsCadre, updateNetMensu
               id="intpart"
               label="Intéressement / Participation"
               variant="standard"
-              value={intpart}
-              onChange={(e) => setIntpart(parseFloat(e.target.value) || "")}
+              value={salary.intpart}
+              onChange={(e) => onFieldChange("intpart", e.target.value)}
               size="small"
               fullWidth
             />
             <FormControlLabel
               control={
                 <Switch
-                  checked={isFiscalise}
-                  onChange={() => setIsFiscalise(!isFiscalise)}
+                  checked={salary.isFiscalise}
+                  onChange={() =>
+                    onFieldChange("isFiscalise", !salary.isFiscalise)
+                  }
                   color="primary"
                 />
               }
@@ -194,10 +171,8 @@ function Salary({ brutAnnuel, setBrutAnnuel, isCadre, setIsCadre, updateNetMensu
               id="abondement"
               label="Abondement"
               variant="standard"
-              value={abondement}
-              onChange={(e) =>
-                setAbondement(parseFloat(e.target.value) || "")
-              }
+              value={salary.abondement}
+              onChange={(e) => onFieldChange("abondement", e.target.value)}
               size="small"
               fullWidth
             />
@@ -221,18 +196,24 @@ function Salary({ brutAnnuel, setBrutAnnuel, isCadre, setIsCadre, updateNetMensu
         <FormControlLabel
           control={
             <Switch
-              checked={isCadre}
-              onChange={() => setIsCadre(!isCadre)}
+              checked={salary.isCadre}
+              onChange={() => onFieldChange("isCadre", !salary.isCadre)}
               color="primary"
             />
           }
-          label={isCadre ? "Cadre" : "Non cadre"}
+          label={salary.isCadre ? "Cadre" : "Non cadre"}
           sx={{ mr: 2 }}
         />
-        <Typography>Taux : {tauxAffichage}</Typography>
-        <Typography>Total brut annuel : {totalBrut}</Typography>
-        <Typography>Total brut mensuel : {totalBrutMensuel}</Typography>
-        <Typography>Total net mensuel : {totalNetMensuel}</Typography>
+        <Typography>Taux : {metrics.tauxAffichage}</Typography>
+        <Typography>
+          Total brut annuel : {formatAmount(metrics.totalBrut)}
+        </Typography>
+        <Typography>
+          Total brut mensuel : {formatAmount(metrics.totalBrutMensuel)}
+        </Typography>
+        <Typography>
+          Total net mensuel : {formatAmount(metrics.totalNetMensuel)}
+        </Typography>
       </Box>
     </Box>
   );

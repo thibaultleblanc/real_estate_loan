@@ -1,0 +1,32 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: real_estate_loan.dockerfile
+      target: dev
+    container_name: real-estate-loan-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./real_estate_loan_app:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+    environment:
+      - VITE_HMR_HOST=localhost
+      - VITE_HMR_PORT=5173
+
+  preview:
+    build:
+      context: .
+      dockerfile: real_estate_loan.dockerfile
+      target: dev
+    container_name: real-estate-loan-preview
+    ports:
+      - "5174:5174"
+    volumes:
+      - ./real_estate_loan_app:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0 --port 5174
+    environment:
+      - VITE_HMR_HOST=localhost
+      - VITE_HMR_PORT=5174

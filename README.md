@@ -74,3 +74,25 @@ docker compose exec -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/.npm web npm run build
 
 Le build est bloquant: `npm run build` execute d'abord `lint` puis `test`, puis lance `vite build`.
 Le build Docker suit la meme logique: le stage `test` execute lint + tests avant la construction finale.
+
+## Deploiement GitHub Pages
+
+Le depot contient un workflow GitHub Actions dans [.github/workflows/deploy.yml](.github/workflows/deploy.yml).
+
+Fonctionnement:
+
+1. Un push sur `master` declenche le workflow.
+2. Le job installe les dependances dans `real_estate_loan_app`.
+3. `npm run deploy` lance d'abord `npm run build` via `predeploy`.
+4. Le contenu de `real_estate_loan_app/dist` est publie sur la branche `gh-pages`.
+
+Configuration GitHub a faire une seule fois:
+
+1. Aller dans `Settings > Pages` du depot.
+2. Dans `Build and deployment`, choisir `Deploy from a branch`.
+3. Selectionner la branche `gh-pages` et le dossier `/ (root)`.
+
+La base Vite est calculee automatiquement pour GitHub Pages:
+
+- repo projet classique: publication sous `/nom-du-repo/`
+- repo `username.github.io`: publication a la racine `/`

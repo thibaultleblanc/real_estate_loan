@@ -8,7 +8,7 @@ export const DEFAULT_SCENARIO = {
   currentStep: 0,
   settings: { ...DEFAULT_FACTORY_SETTINGS },
   salary: {
-    brutAnnuel: "55000",
+    brutAnnuel: "42000",
     isCadre: true,
     tauxImpot: "0",
     primes: "",

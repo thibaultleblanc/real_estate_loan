@@ -1,8 +1,24 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
+function getGithubPagesBase() {
+  const repositorySlug = process.env.GITHUB_REPOSITORY;
+  if (!repositorySlug) {
+    return "/";
+  }
+
+  const [, repositoryName] = repositorySlug.split("/");
+  if (!repositoryName || repositoryName.endsWith(".github.io")) {
+    return "/";
+  }
+
+  return `/${repositoryName}/`;
+}
+
 // https://vite.dev/config/
 export default defineConfig({
+  base:
+    process.env.GITHUB_ACTIONS === "true" ? getGithubPagesBase() : "/",
   plugins: [react()],
   server: {
     hmr: {

@@ -6,7 +6,10 @@ RUN npm ci --no-audit --fund=false
 COPY real_estate_loan_app /app
 
 # Build Stage
-FROM dev AS build
+FROM dev AS test
+RUN npm run lint && npm run test
+
+FROM test AS build
 RUN npm run build
 
 # Production Stage

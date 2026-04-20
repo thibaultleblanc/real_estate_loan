@@ -1,0 +1,84 @@
+import { describe, expect, it } from "vitest";
+import {
+  calculateLoanMetrics,
+  calculateSalaryMetrics,
+  calculateTaxBreakdown,
+} from "./calculations";
+import { DEFAULT_FACTORY_SETTINGS } from "./factorySettings";
+
+describe("calculateSalaryMetrics", () => {
+  it("calcule net, base imposable et net apres impot avec primes PEG/PERCO", () => {
+    const salary = {
+      brutAnnuel: "60000",
+      isCadre: true,
+      tauxImpot: "10",
+      primes: "1000",
+      primePartageValeur: "0",
+      interessement: "0",
+      participation: "0",
+      abondement: "0",
+      primesPegPerco: true,
+      primePartageValeurPegPerco: false,
+      interessementPegPerco: false,
+      participationPegPerco: false,
+      abondementPegPerco: false,
+    };
+
+    const metrics = calculateSalaryMetrics(salary, DEFAULT_FACTORY_SETTINGS);
+
+    expect(metrics.annuelNet).toBe(45000);
+    expect(metrics.avantagesNet).toBe(1000);
+    expect(metrics.totalNetAnnuel).toBe(46000);
+    expect(metrics.baseImposableAnnuelle).toBe(45000);
+    expect(metrics.impotAnnuel).toBe(4500);
+    expect(metrics.totalNetApresImpotAnnuel).toBe(41500);
+  });
+});
+
+describe("calculateLoanMetrics", () => {
+  it("calcule mensualite max et applique frais de notaire ancien", () => {
+    const metrics = calculateLoanMetrics({
+      netMensuel: 4000,
+      loan: { duree: 20, tauxAnnuel: 3.5, apport: "10000", isNeuf: false },
+      settings: DEFAULT_FACTORY_SETTINGS,
+    });
+
+    expect(metrics.mensualiteMax).toBe(1400);
+    expect(metrics.tauxFraisNotaire).toBe(DEFAULT_FACTORY_SETTINGS.fraisNotaireAncien);
+    expect(metrics.fraisNotaire).toBeGreaterThan(0);
+    expect(metrics.capaciteAchatNet).toBeLessThan(metrics.montantMax + metrics.apportValue);
+  });
+
+  it("bascule sur les frais notaire neuf quand isNeuf est vrai", () => {
+    const metrics = calculateLoanMetrics({
+      netMensuel: 4000,
+      loan: { duree: 20, tauxAnnuel: 3.5, apport: "10000", isNeuf: true },
+      settings: DEFAULT_FACTORY_SETTINGS,
+    });
+
+    expect(metrics.tauxFraisNotaire).toBe(DEFAULT_FACTORY_SETTINGS.fraisNotaireNeuf);
+  });
+});
+
+describe("calculateTaxBreakdown", () => {
+  it("retourne les montants taxes par tranche et le total", () => {
+    const result = calculateTaxBreakdown(100000, DEFAULT_FACTORY_SETTINGS);
+
+    expect(result.income).toBe(100000);
+    expect(result.brackets).toHaveLength(DEFAULT_FACTORY_SETTINGS.taxBrackets.length);
+    expect(result.brackets[0].taxableAmount).toBe(11600);
+    expect(result.brackets[1].taxableAmount).toBe(17979);
+    expect(result.brackets[2].taxableAmount).toBe(54998);
+    expect(result.brackets[3].taxableAmount).toBe(15423);
+    expect(result.totalTax).toBeCloseTo(24800.52, 2);
+  });
+
+  it("gere la tranche infinie quand le revenu depasse tous les plafonds", () => {
+    const result = calculateTaxBreakdown(300000, DEFAULT_FACTORY_SETTINGS);
+    const lastBracket = result.brackets[result.brackets.length - 1];
+
+    expect(lastBracket.label).toBe(">181917");
+    expect(lastBracket.taxableAmount).toBeGreaterThan(0);
+    expect(lastBracket.taxAmount).toBeGreaterThan(0);
+  });
+});

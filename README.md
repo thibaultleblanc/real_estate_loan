@@ -53,3 +53,24 @@ URL: http://localhost:5174
 docker build --target build -t real_estate_loan:build -f real_estate_loan.dockerfile .
 docker build --target production -t real_estate_loan:production -f real_estate_loan.dockerfile .
 ```
+
+## Tests automatiques
+
+Les tests sont bases sur Vitest + React Testing Library.
+
+Execution dans le conteneur `web` (pas en local):
+
+```bash
+docker compose exec -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/.npm web npm run test
+docker compose exec -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/.npm web npm run test:watch
+docker compose exec -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/.npm web npm run test:coverage
+```
+
+Build applicatif dans le conteneur:
+
+```bash
+docker compose exec -e HOME=/tmp -e NPM_CONFIG_CACHE=/tmp/.npm web npm run build
+```
+
+Le build est bloquant: `npm run build` execute d'abord `lint` puis `test`, puis lance `vite build`.
+Le build Docker suit la meme logique: le stage `test` execute lint + tests avant la construction finale.

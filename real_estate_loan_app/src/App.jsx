@@ -1,5 +1,5 @@
 import Footer from "./layout/Footer.jsx";
-import MainView from "./MainView.jsx";
+import ScenarioView from "./features/scenario/ScenarioView.jsx";
 import { Box, CssBaseline } from "@mui/material";
 import "./App.css";
 
@@ -16,7 +16,7 @@ function App() {
           pb: 12,
         }}
       >
-        <MainView />
+        <ScenarioView />
         <Footer />
       </Box>
     </>

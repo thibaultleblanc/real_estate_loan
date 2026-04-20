@@ -1,8 +1,8 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import TaxBreakdown from "./TaxBreakdown";
-import { calculateTaxBreakdown } from "./utils/calculations";
-import { DEFAULT_FACTORY_SETTINGS } from "./utils/factorySettings";
+import { calculateTaxBreakdown } from "../../utils/calculations";
+import { DEFAULT_FACTORY_SETTINGS } from "../../utils/factorySettings";
 
 describe("TaxBreakdown", () => {
   it("permet d'ajuster le taux via le slider et afficher le detail", () => {

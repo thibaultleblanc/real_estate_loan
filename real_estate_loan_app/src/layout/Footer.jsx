@@ -4,6 +4,7 @@ import {
   Typography,
   Box,
 } from "@mui/material";
+import { BRAND_COLORS } from "../themeTokens";
 
 function Footer() {
   return (
@@ -12,7 +13,7 @@ function Footer() {
         showLabels
         sx={{
           bgcolor: "rgba(255, 255, 255, 0.96)",
-          borderTop: "1px solid #E5E7EB",
+          borderTop: `1px solid ${BRAND_COLORS.divider}`,
           backdropFilter: "blur(8px)",
         }}
       >
@@ -21,7 +22,7 @@ function Footer() {
             <Typography
               variant="body2"
               align="center"
-              sx={{ width: "100%", color: "#6B7280" }}
+              sx={{ width: "100%", color: BRAND_COLORS.textSecondary }}
             >
               © 2025 - Réalisé avec Material UI
             </Typography>

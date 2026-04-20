@@ -10,6 +10,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { BRAND_COLORS } from "../../themeTokens";
 
 const SETTINGS_SECTIONS = [
   {
@@ -204,7 +205,7 @@ function FactorySettingsDrawer({
               variant="body2"
               onClick={toggleAllSections}
               sx={{
-                color: "#4F46E5",
+                color: BRAND_COLORS.primary,
                 fontWeight: 600,
                 cursor: "pointer",
                 alignSelf: "flex-end",
@@ -223,7 +224,7 @@ function FactorySettingsDrawer({
                 disableGutters
                 elevation={0}
                 sx={{
-                  border: "1px solid #e5e7eb",
+                  border: `1px solid ${BRAND_COLORS.divider}`,
                   borderRadius: 2,
                   bgcolor: "#ffffff",
                   overflow: "hidden",
@@ -232,7 +233,7 @@ function FactorySettingsDrawer({
               >
                 <AccordionSummary
                   expandIcon={
-                    <Typography sx={{ color: "#4F46E5", fontWeight: 700 }}>
+                    <Typography sx={{ color: BRAND_COLORS.primary, fontWeight: 700 }}>
                       v
                     </Typography>
                   }
@@ -240,7 +241,7 @@ function FactorySettingsDrawer({
                 >
                   <Typography
                     variant="subtitle2"
-                    sx={{ fontWeight: 700, color: "#4F46E5" }}
+                    sx={{ fontWeight: 700, color: BRAND_COLORS.primary }}
                   >
                     {section.title}
                   </Typography>
@@ -262,7 +263,7 @@ function FactorySettingsDrawer({
                             key={`tax-bracket-${index}`}
                             sx={{
                               p: 1,
-                              border: "1px solid #e5e7eb",
+                              border: `1px solid ${BRAND_COLORS.divider}`,
                               borderRadius: 1.5,
                               bgcolor: "#fafafa",
                             }}

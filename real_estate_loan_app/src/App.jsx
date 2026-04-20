@@ -1,4 +1,4 @@
-import Footer from "./Footer.jsx";
+import Footer from "./layout/Footer.jsx";
 import MainView from "./MainView.jsx";
 import { Box, CssBaseline } from "@mui/material";
 import "./App.css";

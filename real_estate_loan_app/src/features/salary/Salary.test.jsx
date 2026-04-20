@@ -2,8 +2,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { useMemo, useState } from "react";
 import { describe, expect, it } from "vitest";
 import Salary from "./Salary";
-import { calculateSalaryMetrics } from "./utils/calculations";
-import { DEFAULT_FACTORY_SETTINGS } from "./utils/factorySettings";
+import { calculateSalaryMetrics } from "../../utils/calculations";
+import { DEFAULT_FACTORY_SETTINGS } from "../../utils/factorySettings";
 
 function SalaryHarness() {
   const [salary, setSalary] = useState({

@@ -1,17 +1,18 @@
 import { createTheme } from "@mui/material/styles";
+import { BRAND_COLORS } from "./themeTokens";
 
 export const violetTheme = createTheme({
   palette: {
     primary: {
-      main: "#4F46E5",
-      light: "#8B5CF6",
-      dark: "#4338CA",
+      main: BRAND_COLORS.primary,
+      light: BRAND_COLORS.secondary,
+      dark: BRAND_COLORS.primaryDark,
       contrastText: "#FFFFFF",
     },
     secondary: {
-      main: "#8B5CF6",
+      main: BRAND_COLORS.secondary,
       light: "#A78BFA",
-      dark: "#7C3AED",
+      dark: BRAND_COLORS.accent,
       contrastText: "#FFFFFF",
     },
     background: {
@@ -22,11 +23,11 @@ export const violetTheme = createTheme({
       primary: "#252525",
       secondary: "#6B7280",
     },
-    divider: "#E5E7EB",
+    divider: BRAND_COLORS.divider,
     action: {
-      active: "#4F46E5",
-      hover: "rgba(79, 70, 229, 0.08)",
-      selected: "rgba(79, 70, 229, 0.12)",
+      active: BRAND_COLORS.primary,
+      hover: BRAND_COLORS.primaryHover,
+      selected: BRAND_COLORS.primarySelected,
       disabled: "#D1D5DB",
     },
   },
@@ -37,17 +38,17 @@ export const violetTheme = createTheme({
     MuiButton: {
       styleOverrides: {
         contained: {
-          backgroundColor: "#4F46E5",
+          backgroundColor: BRAND_COLORS.primary,
           "&:hover": {
-            backgroundColor: "#4338CA",
+            backgroundColor: BRAND_COLORS.primaryDark,
           },
         },
         outlined: {
-          borderColor: "#4F46E5",
-          color: "#4F46E5",
+          borderColor: BRAND_COLORS.primary,
+          color: BRAND_COLORS.primary,
           "&:hover": {
-            backgroundColor: "rgba(79, 70, 229, 0.08)",
-            borderColor: "#4338CA",
+            backgroundColor: BRAND_COLORS.primaryHover,
+            borderColor: BRAND_COLORS.primaryDark,
           },
         },
       },
@@ -57,7 +58,7 @@ export const violetTheme = createTheme({
         switchBase: {
           color: "#D1D5DB",
           "&.Mui-checked": {
-            color: "#4F46E5",
+            color: BRAND_COLORS.primary,
           },
         },
       },
@@ -65,7 +66,7 @@ export const violetTheme = createTheme({
     MuiSlider: {
       styleOverrides: {
         root: {
-          color: "#4F46E5",
+          color: BRAND_COLORS.primary,
         },
       },
     },
@@ -86,7 +87,7 @@ export const violetTheme = createTheme({
         root: {
           "& .MuiOutlinedInput-root": {
             "&.Mui-focused fieldset": {
-              borderColor: "#4F46E5",
+              borderColor: BRAND_COLORS.primary,
             },
           },
         },

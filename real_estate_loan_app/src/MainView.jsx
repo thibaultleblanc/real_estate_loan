@@ -1,15 +1,16 @@
 import { Alert, Box, Button, Stack, Typography } from "@mui/material";
 import { useEffect, useMemo, useRef, useState } from "react";
-import FactorySettingsDrawer from "./FactorySettingsDrawer";
-import Header from "./Header";
-import Salary from "./Salary";
-import RealEstateLoan from "./RealEstateLoan";
-import Rentability from "./Rentability";
+import FactorySettingsDrawer from "./features/settings/FactorySettingsDrawer";
+import Header from "./layout/Header";
+import Salary from "./features/salary/Salary";
+import RealEstateLoan from "./features/loan/RealEstateLoan";
+import Rentability from "./features/rentability/Rentability";
 import {
   calculateLoanMetrics,
   calculateSalaryMetrics,
   estimateTaxRateFromTaxableIncome,
 } from "./utils/calculations";
+import { BRAND_COLORS } from "./themeTokens";
 import { DEFAULT_FACTORY_SETTINGS } from "./utils/factorySettings";
 import {
   createDefaultScenario,
@@ -220,13 +221,13 @@ function MainView() {
           sx={{
             p: { xs: 1.6, md: 2 },
             borderRadius: 3,
-            border: "1px solid #E5E7EB",
+            border: `1px solid ${BRAND_COLORS.divider}`,
             background: "rgba(255, 255, 255, 0.75)",
             backdropFilter: "blur(6px)",
             mb: 2,
           }}
         >
-          <Typography sx={{ color: "#4F46E5", fontWeight: 700 }}>
+          <Typography sx={{ color: BRAND_COLORS.primary, fontWeight: 700 }}>
             Scenario en cours: etape {scenario.currentStep + 1} / 3
           </Typography>
           <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
@@ -261,7 +262,7 @@ function MainView() {
             px: { xs: 1, md: 2 },
             py: { xs: 1, md: 2 },
             background: "rgba(255,255,255,0.5)",
-            border: "1px solid rgba(79, 70, 229, 0.2)",
+            border: `1px solid ${BRAND_COLORS.primarySelected}`,
           }}
         >
           {renderCurrentStep()}

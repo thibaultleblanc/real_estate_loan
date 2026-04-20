@@ -13,8 +13,9 @@ import {
   Switch,
   FormControlLabel,
 } from "@mui/material";
-import { formatAmount } from "./utils/calculations";
-import TaxBreakdown from "./TaxBreakdown";
+import { formatAmount } from "../../utils/calculations";
+import TaxBreakdown from "../tax/TaxBreakdown";
+import { BRAND_GRADIENTS } from "../../themeTokens";
 
 function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
   return (
@@ -31,7 +32,7 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
       <Box
         sx={{
           width: { xs: "95%", md: "90%" },
-          background: "linear-gradient(120deg, #4F46E5 0%, #8B5CF6 100%)",
+          background: BRAND_GRADIENTS.sectionBanner,
           color: "#fff",
           py: 1,
           px: 2,

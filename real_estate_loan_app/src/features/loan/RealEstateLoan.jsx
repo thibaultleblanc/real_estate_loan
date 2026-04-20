@@ -7,7 +7,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { formatAmount } from "./utils/calculations";
+import { formatAmount } from "../../utils/calculations";
+import { BRAND_GRADIENTS } from "../../themeTokens";
 
 function RealEstateLoan({ loan, settings, metrics, onFieldChange }) {
   function updateDuree(value) {
@@ -41,7 +42,7 @@ function RealEstateLoan({ loan, settings, metrics, onFieldChange }) {
       <Box
         sx={{
           width: { xs: "95%", md: "90%" },
-          background: "linear-gradient(120deg, #4F46E5 0%, #8B5CF6 100%)",
+          background: BRAND_GRADIENTS.sectionBanner,
           color: "#fff",
           py: 1,
           px: 2,

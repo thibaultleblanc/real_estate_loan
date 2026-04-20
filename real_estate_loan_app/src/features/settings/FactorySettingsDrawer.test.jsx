@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import FactorySettingsDrawer from "./FactorySettingsDrawer";
-import { DEFAULT_FACTORY_SETTINGS } from "./utils/factorySettings";
+import { DEFAULT_FACTORY_SETTINGS } from "../../utils/factorySettings";
 
 describe("FactorySettingsDrawer", () => {
   it("edite les parametres d'impots et propage la mise a jour", () => {

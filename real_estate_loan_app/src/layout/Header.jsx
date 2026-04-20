@@ -1,4 +1,5 @@
 import { AppBar, Box, Tab, Tabs, Toolbar, Typography } from "@mui/material";
+import { BRAND_COLORS, BRAND_GRADIENTS } from "../themeTokens";
 
 const STEPS = ["Salaire", "Emprunt", "Rentabilite"];
 
@@ -9,8 +10,7 @@ function Header({ currentStep, onStepChange }) {
       elevation={0}
       sx={{
         mb: 3,
-        background:
-          "linear-gradient(120deg, #4F46E5 0%, #8B5CF6 40%, #7C3AED 100%)",
+        background: BRAND_GRADIENTS.header,
         borderBottom: "1px solid rgba(255,255,255,0.15)",
       }}
     >
@@ -39,7 +39,7 @@ function Header({ currentStep, onStepChange }) {
           onChange={(_, value) => onStepChange(value)}
           variant="fullWidth"
           TabIndicatorProps={{
-            style: { height: 3, backgroundColor: "#FCD34D" },
+            style: { height: 3, backgroundColor: BRAND_COLORS.warning },
           }}
           sx={{
             bgcolor: "rgba(255,255,255,0.2)",

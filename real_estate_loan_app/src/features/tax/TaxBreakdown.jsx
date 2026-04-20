@@ -13,7 +13,8 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { formatAmount } from "./utils/calculations";
+import { formatAmount } from "../../utils/calculations";
+import { BRAND_COLORS } from "../../themeTokens";
 
 function TaxBreakdown({
   taxBreakdown,
@@ -77,7 +78,7 @@ function TaxBreakdown({
           variant="text"
           onClick={() => setExpanded((prev) => !prev)}
           sx={{
-            color: "#4F46E5",
+            color: BRAND_COLORS.primary,
             fontWeight: 700,
             alignSelf: { xs: "flex-start", sm: "center" },
           }}

@@ -175,7 +175,7 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
               color="primary"
               size="small"
               sx={{ justifySelf: "center" }}
-              inputProps={{ "aria-label": "Prime stable" }}
+              slotProps={{ input: { "aria-label": "Prime stable" } }}
             />
           </FormControl>
           <FormControl
@@ -211,7 +211,9 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
               color="primary"
               size="small"
               sx={{ justifySelf: "center" }}
-              inputProps={{ "aria-label": "Prime partage valeur PEE/PERCO" }}
+              slotProps={{
+                input: { "aria-label": "Prime partage valeur PEE/PERCO" },
+              }}
             />
             <Switch
               checked={salary.primePartageValeurStable}
@@ -224,7 +226,9 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
               color="primary"
               size="small"
               sx={{ justifySelf: "center" }}
-              inputProps={{ "aria-label": "Prime partage valeur stable" }}
+              slotProps={{
+                input: { "aria-label": "Prime partage valeur stable" },
+              }}
             />
           </FormControl>
           <FormControl
@@ -258,7 +262,7 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
               color="primary"
               size="small"
               sx={{ justifySelf: "center" }}
-              inputProps={{ "aria-label": "Interessement PEE/PERCO" }}
+              slotProps={{ input: { "aria-label": "Interessement PEE/PERCO" } }}
             />
             <Switch
               checked={salary.interessementStable}
@@ -271,7 +275,7 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
               color="primary"
               size="small"
               sx={{ justifySelf: "center" }}
-              inputProps={{ "aria-label": "Interessement stable" }}
+              slotProps={{ input: { "aria-label": "Interessement stable" } }}
             />
           </FormControl>
           <FormControl
@@ -305,7 +309,7 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
               color="primary"
               size="small"
               sx={{ justifySelf: "center" }}
-              inputProps={{ "aria-label": "Participation PEE/PERCO" }}
+              slotProps={{ input: { "aria-label": "Participation PEE/PERCO" } }}
             />
             <Switch
               checked={salary.participationStable}
@@ -318,7 +322,7 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
               color="primary"
               size="small"
               sx={{ justifySelf: "center" }}
-              inputProps={{ "aria-label": "Participation stable" }}
+              slotProps={{ input: { "aria-label": "Participation stable" } }}
             />
           </FormControl>
           <FormControl
@@ -348,7 +352,7 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
               color="primary"
               size="small"
               sx={{ justifySelf: "center" }}
-              inputProps={{ "aria-label": "Abondement PEE/PERCO" }}
+              slotProps={{ input: { "aria-label": "Abondement PEE/PERCO" } }}
             />
             <Switch
               checked={salary.abondementStable}
@@ -358,7 +362,7 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
               color="primary"
               size="small"
               sx={{ justifySelf: "center" }}
-              inputProps={{ "aria-label": "Abondement stable" }}
+              slotProps={{ input: { "aria-label": "Abondement stable" } }}
             />
           </FormControl>
         </Box>

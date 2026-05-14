@@ -52,7 +52,7 @@ function Header({ currentStep, onStepChange }) {
               fontWeight: 700,
               letterSpacing: 0.5,
             },
-            ".Mui-selected": {
+            ".MuiTab-root.Mui-selected": {
               color: BRAND_COLORS.warning,
             },
           }}

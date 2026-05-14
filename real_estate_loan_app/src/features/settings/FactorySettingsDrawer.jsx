@@ -233,7 +233,9 @@ function FactorySettingsDrawer({
               >
                 <AccordionSummary
                   expandIcon={
-                    <Typography sx={{ color: BRAND_COLORS.primary, fontWeight: 700 }}>
+                    <Typography
+                      sx={{ color: BRAND_COLORS.primary, fontWeight: 700 }}
+                    >
                       v
                     </Typography>
                   }
@@ -292,7 +294,7 @@ function FactorySettingsDrawer({
                                     event.target.value,
                                   )
                                 }
-                                inputProps={{ min: 0, step: 1 }}
+                                slotProps={{ htmlInput: { min: 0, step: 1 } }}
                                 size="small"
                                 fullWidth
                                 disabled={isLast}
@@ -313,7 +315,9 @@ function FactorySettingsDrawer({
                                     event.target.value,
                                   )
                                 }
-                                inputProps={{ min: 0, max: 100, step: 0.1 }}
+                                slotProps={{
+                                  htmlInput: { min: 0, max: 100, step: 0.1 },
+                                }}
                                 size="small"
                                 fullWidth
                               />
@@ -333,10 +337,12 @@ function FactorySettingsDrawer({
                           onChange={(event) =>
                             handleNumberChange(field.key, event.target.value)
                           }
-                          inputProps={{
-                            min: field.min,
-                            max: field.max,
-                            step: field.step,
+                          slotProps={{
+                            htmlInput: {
+                              min: field.min,
+                              max: field.max,
+                              step: field.step,
+                            },
                           }}
                           size="small"
                           fullWidth

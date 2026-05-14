@@ -6,9 +6,9 @@ function ScenarioToolbar({ scenario, onExport, onImportRequest, onReset }) {
     <Stack
       direction={{ xs: "column", md: "row" }}
       spacing={1.2}
-      alignItems={{ xs: "stretch", md: "center" }}
-      justifyContent="space-between"
       sx={{
+        alignItems: { xs: "stretch", md: "center" },
+        justifyContent: "space-between",
         p: { xs: 1.6, md: 2 },
         borderRadius: 3,
         border: `1px solid ${BRAND_COLORS.divider}`,

@@ -95,7 +95,7 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
                       onChange={(e) =>
                         onFieldChange("brutAnnuel", e.target.value)
                       }
-                      inputProps={{ min: 0, step: 0.01 }}
+                      slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
                       size="small"
                       sx={{ width: 100 }}
                     />
@@ -142,19 +142,6 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
               onChange={(e) => onFieldChange("primes", e.target.value)}
               size="small"
               fullWidth
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={salary.primesPegPerco}
-                  onChange={() =>
-                    onFieldChange("primesPegPerco", !salary.primesPegPerco)
-                  }
-                  color="primary"
-                />
-              }
-              label="PEG/PERCO"
-              sx={{ ml: 2 }}
             />
           </FormControl>
           <FormControl

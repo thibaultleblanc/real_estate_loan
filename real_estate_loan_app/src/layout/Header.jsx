@@ -38,13 +38,14 @@ function Header({ currentStep, onStepChange }) {
           value={currentStep}
           onChange={(_, value) => onStepChange(value)}
           variant="fullWidth"
-          TabIndicatorProps={{
-            style: { height: 3, backgroundColor: BRAND_COLORS.warning },
-          }}
           sx={{
             bgcolor: "rgba(255,255,255,0.2)",
             borderRadius: 2,
             minHeight: 54,
+            ".MuiTabs-indicator": {
+              height: 3,
+              backgroundColor: BRAND_COLORS.warning,
+            },
             ".MuiTab-root": {
               color: "rgba(255,255,255,0.95)",
               minHeight: 54,

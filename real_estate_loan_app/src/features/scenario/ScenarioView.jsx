@@ -95,7 +95,7 @@ function ScenarioView() {
           />
         </Box>
 
-        <Stack direction="row" justifyContent="space-between" sx={{ mt: 2 }}>
+        <Stack direction="row" sx={{ mt: 2, justifyContent: "space-between" }}>
           <Button
             variant="outlined"
             disabled={scenario.currentStep === 0}

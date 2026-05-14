@@ -84,7 +84,7 @@ function RealEstateLoan({ loan, settings, metrics, onFieldChange }) {
             value={loan.tauxAnnuel}
             onChange={(e) => updateTauxAnnuel(e.target.value)}
             size="small"
-            inputProps={{ min: 0, step: 0.01 }}
+            slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
             sx={{ mb: 2 }}
           />
           <TextField
@@ -93,7 +93,7 @@ function RealEstateLoan({ loan, settings, metrics, onFieldChange }) {
             value={loan.apport}
             onChange={(e) => onFieldChange("apport", e.target.value)}
             size="small"
-            inputProps={{ min: 0, step: 1000 }}
+            slotProps={{ htmlInput: { min: 0, step: 1000 } }}
             sx={{ mb: 2 }}
           />
           <FormControlLabel

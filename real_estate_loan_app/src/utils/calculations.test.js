@@ -7,7 +7,7 @@ import {
 import { DEFAULT_FACTORY_SETTINGS } from "./factorySettings";
 
 describe("calculateSalaryMetrics", () => {
-  it("calcule net, base imposable et net apres impot avec primes PEG/PERCO", () => {
+  it("calcule net, base imposable et net apres impot avec primes PEE/PERCO", () => {
     const salary = {
       brutAnnuel: "60000",
       isCadre: true,
@@ -17,11 +17,11 @@ describe("calculateSalaryMetrics", () => {
       interessement: "0",
       participation: "0",
       abondement: "0",
-      primesPegPerco: true,
-      primePartageValeurPegPerco: false,
-      interessementPegPerco: false,
-      participationPegPerco: false,
-      abondementPegPerco: false,
+      primesPeePerco: true,
+      primePartageValeurPeePerco: false,
+      interessementPeePerco: false,
+      participationPeePerco: false,
+      abondementPeePerco: false,
     };
 
     const metrics = calculateSalaryMetrics(salary, DEFAULT_FACTORY_SETTINGS);
@@ -44,9 +44,13 @@ describe("calculateLoanMetrics", () => {
     });
 
     expect(metrics.mensualiteMax).toBe(1400);
-    expect(metrics.tauxFraisNotaire).toBe(DEFAULT_FACTORY_SETTINGS.fraisNotaireAncien);
+    expect(metrics.tauxFraisNotaire).toBe(
+      DEFAULT_FACTORY_SETTINGS.fraisNotaireAncien,
+    );
     expect(metrics.fraisNotaire).toBeGreaterThan(0);
-    expect(metrics.capaciteAchatNet).toBeLessThan(metrics.montantMax + metrics.apportValue);
+    expect(metrics.capaciteAchatNet).toBeLessThan(
+      metrics.montantMax + metrics.apportValue,
+    );
   });
 
   it("bascule sur les frais notaire neuf quand isNeuf est vrai", () => {
@@ -56,7 +60,9 @@ describe("calculateLoanMetrics", () => {
       settings: DEFAULT_FACTORY_SETTINGS,
     });
 
-    expect(metrics.tauxFraisNotaire).toBe(DEFAULT_FACTORY_SETTINGS.fraisNotaireNeuf);
+    expect(metrics.tauxFraisNotaire).toBe(
+      DEFAULT_FACTORY_SETTINGS.fraisNotaireNeuf,
+    );
   });
 });
 
@@ -65,7 +71,9 @@ describe("calculateTaxBreakdown", () => {
     const result = calculateTaxBreakdown(100000, DEFAULT_FACTORY_SETTINGS);
 
     expect(result.income).toBe(100000);
-    expect(result.brackets).toHaveLength(DEFAULT_FACTORY_SETTINGS.taxBrackets.length);
+    expect(result.brackets).toHaveLength(
+      DEFAULT_FACTORY_SETTINGS.taxBrackets.length,
+    );
     expect(result.brackets[0].taxableAmount).toBe(11600);
     expect(result.brackets[1].taxableAmount).toBe(17979);
     expect(result.brackets[2].taxableAmount).toBe(54998);

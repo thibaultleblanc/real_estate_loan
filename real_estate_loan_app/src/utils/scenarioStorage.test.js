@@ -38,8 +38,8 @@ describe("normalizeScenario", () => {
     );
     expect(normalized.salary.brutAnnuel).toBe("70000");
     expect(normalized.salary.interessement).toBe("2500");
-    expect(normalized.salary.interessementPegPerco).toBe(true);
-    expect(normalized.salary.participationPegPerco).toBe(true);
+    expect(normalized.salary.interessementPeePerco).toBe(true);
+    expect(normalized.salary.participationPeePerco).toBe(true);
     expect(normalized.loan.duree).toBe(10);
     expect(normalized.loan.tauxAnnuel).toBe(4.2);
   });

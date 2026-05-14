@@ -28,27 +28,27 @@ export function calculateSalaryMetrics(
 
   const taux = getSalaryRate(salary.isCadre, settings);
   const netValue = brutValue * taux;
-  const netPrimes = (salary.primesPegPerco ? 1 : taux) * primesValue;
+  const netPrimes = (salary.primesPeePerco ? 1 : taux) * primesValue;
   const netPrimePartageValeur =
-    (salary.primePartageValeurPegPerco ? 1 : taux) * primePartageValeurValue;
+    (salary.primePartageValeurPeePerco ? 1 : taux) * primePartageValeurValue;
   const netInteressement =
-    (salary.interessementPegPerco ? 1 : taux) * interessementValue;
+    (salary.interessementPeePerco ? 1 : taux) * interessementValue;
   const netParticipation =
-    (salary.participationPegPerco ? 1 : taux) * participationValue;
+    (salary.participationPeePerco ? 1 : taux) * participationValue;
   const netAbondement =
-    (salary.abondementPegPerco ? 1 : taux) * abondementValue;
+    (salary.abondementPeePerco ? 1 : taux) * abondementValue;
 
-  const taxablePrimes = salary.primesPegPerco ? 0 : netPrimes;
-  const taxablePrimePartageValeur = salary.primePartageValeurPegPerco
+  const taxablePrimes = salary.primesPeePerco ? 0 : netPrimes;
+  const taxablePrimePartageValeur = salary.primePartageValeurPeePerco
     ? 0
     : netPrimePartageValeur;
-  const taxableInteressement = salary.interessementPegPerco
+  const taxableInteressement = salary.interessementPeePerco
     ? 0
     : netInteressement;
-  const taxableParticipation = salary.participationPegPerco
+  const taxableParticipation = salary.participationPeePerco
     ? 0
     : netParticipation;
-  const taxableAbondement = salary.abondementPegPerco ? 0 : netAbondement;
+  const taxableAbondement = salary.abondementPeePerco ? 0 : netAbondement;
 
   const avantagesNet =
     netPrimes +
@@ -58,6 +58,14 @@ export function calculateSalaryMetrics(
     netAbondement;
   const totalBrut = brutValue + avantagesBrut;
   const totalNetAnnuel = netValue + avantagesNet;
+
+  const stableAvantagesNet =
+    (salary.primesStable ? netPrimes : 0) +
+    (salary.primePartageValeurStable ? netPrimePartageValeur : 0) +
+    (salary.interessementStable ? netInteressement : 0) +
+    (salary.participationStable ? netParticipation : 0) +
+    (salary.abondementStable ? netAbondement : 0);
+  const stableNetAnnuel = netValue + stableAvantagesNet;
   const baseImposableAnnuelle =
     netValue +
     taxablePrimes +
@@ -90,6 +98,9 @@ export function calculateSalaryMetrics(
     totalNetAnnuel,
     totalBrutMensuel: totalBrut / settings.nbMois,
     totalNetMensuel: totalNetAnnuel / settings.nbMois,
+    stableAvantagesNet,
+    stableNetAnnuel,
+    stableNetMensuel: stableNetAnnuel / settings.nbMois,
     baseImposableAnnuelle,
     baseImposableMensuelle: baseImposableAnnuelle / settings.nbMois,
     taxBreakdown,

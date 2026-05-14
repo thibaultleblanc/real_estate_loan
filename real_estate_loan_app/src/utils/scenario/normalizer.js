@@ -180,25 +180,45 @@ export function normalizeScenario(rawScenario) {
         salaryRaw.abondement,
         fallback.salary.abondement,
       ),
-      primesPegPerco: pickBoolean(
-        salaryRaw.primesPegPerco,
-        fallback.salary.primesPegPerco,
+      primesPeePerco: pickBoolean(
+        salaryRaw.primesPeePerco,
+        fallback.salary.primesPeePerco,
       ),
-      primePartageValeurPegPerco: pickBoolean(
-        salaryRaw.primePartageValeurPegPerco,
-        fallback.salary.primePartageValeurPegPerco,
+      primePartageValeurPeePerco: pickBoolean(
+        salaryRaw.primePartageValeurPeePerco,
+        fallback.salary.primePartageValeurPeePerco,
       ),
-      interessementPegPerco: pickBoolean(
-        salaryRaw.interessementPegPerco ?? salaryRaw.isFiscalise,
-        fallback.salary.interessementPegPerco,
+      interessementPeePerco: pickBoolean(
+        salaryRaw.interessementPeePerco ?? salaryRaw.isFiscalise,
+        fallback.salary.interessementPeePerco,
       ),
-      participationPegPerco: pickBoolean(
-        salaryRaw.participationPegPerco ?? salaryRaw.isFiscalise,
-        fallback.salary.participationPegPerco,
+      participationPeePerco: pickBoolean(
+        salaryRaw.participationPeePerco ?? salaryRaw.isFiscalise,
+        fallback.salary.participationPeePerco,
       ),
-      abondementPegPerco: pickBoolean(
-        salaryRaw.abondementPegPerco,
-        fallback.salary.abondementPegPerco,
+      abondementPeePerco: pickBoolean(
+        salaryRaw.abondementPeePerco,
+        fallback.salary.abondementPeePerco,
+      ),
+      primesStable: pickBoolean(
+        salaryRaw.primesStable,
+        fallback.salary.primesStable,
+      ),
+      primePartageValeurStable: pickBoolean(
+        salaryRaw.primePartageValeurStable,
+        fallback.salary.primePartageValeurStable,
+      ),
+      interessementStable: pickBoolean(
+        salaryRaw.interessementStable,
+        fallback.salary.interessementStable,
+      ),
+      participationStable: pickBoolean(
+        salaryRaw.participationStable,
+        fallback.salary.participationStable,
+      ),
+      abondementStable: pickBoolean(
+        salaryRaw.abondementStable,
+        fallback.salary.abondementStable,
       ),
     },
     loan: {

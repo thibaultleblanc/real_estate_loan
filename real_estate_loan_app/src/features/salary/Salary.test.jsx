@@ -15,11 +15,11 @@ function SalaryHarness() {
     interessement: "",
     participation: "",
     abondement: "",
-    primesPegPerco: false,
-    primePartageValeurPegPerco: false,
-    interessementPegPerco: false,
-    participationPegPerco: false,
-    abondementPegPerco: false,
+    primesPeePerco: false,
+    primePartageValeurPeePerco: false,
+    interessementPeePerco: false,
+    participationPeePerco: false,
+    abondementPeePerco: false,
   });
 
   const metrics = useMemo(

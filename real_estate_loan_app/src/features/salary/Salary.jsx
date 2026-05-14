@@ -123,14 +123,37 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
           >
             Avantages
           </Typography>
+          <Box
+            sx={{
+              width: "80%",
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 1fr) 64px 64px",
+              alignItems: "center",
+              mb: 1,
+            }}
+          >
+            <Box />
+            <Typography
+              variant="caption"
+              sx={{ fontSize: "0.7rem", textAlign: "center" }}
+            >
+              PEE / PERCO
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{ fontSize: "0.7rem", textAlign: "center" }}
+            >
+              Stable
+            </Typography>
+          </Box>
           <FormControl
             variant="standard"
             sx={{
               width: "80%",
-              display: "flex",
-              flexDirection: "row",
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 1fr) 64px 64px",
               alignItems: "center",
-              gap: 2,
+              columnGap: 0.5,
               mb: 2,
             }}
           >
@@ -143,15 +166,26 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
               size="small"
               fullWidth
             />
+            <Box />
+            <Switch
+              checked={salary.primesStable}
+              onChange={() =>
+                onFieldChange("primesStable", !salary.primesStable)
+              }
+              color="primary"
+              size="small"
+              sx={{ justifySelf: "center" }}
+              inputProps={{ "aria-label": "Prime stable" }}
+            />
           </FormControl>
           <FormControl
             variant="standard"
             sx={{
               width: "80%",
-              display: "flex",
-              flexDirection: "row",
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 1fr) 64px 64px",
               alignItems: "center",
-              gap: 2,
+              columnGap: 0.5,
               mb: 2,
             }}
           >
@@ -166,31 +200,41 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
               size="small"
               fullWidth
             />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={salary.primePartageValeurPegPerco}
-                  onChange={() =>
-                    onFieldChange(
-                      "primePartageValeurPegPerco",
-                      !salary.primePartageValeurPegPerco,
-                    )
-                  }
-                  color="primary"
-                />
+            <Switch
+              checked={salary.primePartageValeurPeePerco}
+              onChange={() =>
+                onFieldChange(
+                  "primePartageValeurPeePerco",
+                  !salary.primePartageValeurPeePerco,
+                )
               }
-              label="PEG/PERCO"
-              sx={{ ml: 2 }}
+              color="primary"
+              size="small"
+              sx={{ justifySelf: "center" }}
+              inputProps={{ "aria-label": "Prime partage valeur PEE/PERCO" }}
+            />
+            <Switch
+              checked={salary.primePartageValeurStable}
+              onChange={() =>
+                onFieldChange(
+                  "primePartageValeurStable",
+                  !salary.primePartageValeurStable,
+                )
+              }
+              color="primary"
+              size="small"
+              sx={{ justifySelf: "center" }}
+              inputProps={{ "aria-label": "Prime partage valeur stable" }}
             />
           </FormControl>
           <FormControl
             variant="standard"
             sx={{
               width: "80%",
-              display: "flex",
-              flexDirection: "row",
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 1fr) 64px 64px",
               alignItems: "center",
-              gap: 2,
+              columnGap: 0.5,
               mb: 2,
             }}
           >
@@ -203,31 +247,41 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
               size="small"
               fullWidth
             />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={salary.interessementPegPerco}
-                  onChange={() =>
-                    onFieldChange(
-                      "interessementPegPerco",
-                      !salary.interessementPegPerco,
-                    )
-                  }
-                  color="primary"
-                />
+            <Switch
+              checked={salary.interessementPeePerco}
+              onChange={() =>
+                onFieldChange(
+                  "interessementPeePerco",
+                  !salary.interessementPeePerco,
+                )
               }
-              label="PEG/PERCO"
-              sx={{ ml: 2 }}
+              color="primary"
+              size="small"
+              sx={{ justifySelf: "center" }}
+              inputProps={{ "aria-label": "Interessement PEE/PERCO" }}
+            />
+            <Switch
+              checked={salary.interessementStable}
+              onChange={() =>
+                onFieldChange(
+                  "interessementStable",
+                  !salary.interessementStable,
+                )
+              }
+              color="primary"
+              size="small"
+              sx={{ justifySelf: "center" }}
+              inputProps={{ "aria-label": "Interessement stable" }}
             />
           </FormControl>
           <FormControl
             variant="standard"
             sx={{
               width: "80%",
-              display: "flex",
-              flexDirection: "row",
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 1fr) 64px 64px",
               alignItems: "center",
-              gap: 2,
+              columnGap: 0.5,
               mb: 2,
             }}
           >
@@ -240,31 +294,41 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
               size="small"
               fullWidth
             />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={salary.participationPegPerco}
-                  onChange={() =>
-                    onFieldChange(
-                      "participationPegPerco",
-                      !salary.participationPegPerco,
-                    )
-                  }
-                  color="primary"
-                />
+            <Switch
+              checked={salary.participationPeePerco}
+              onChange={() =>
+                onFieldChange(
+                  "participationPeePerco",
+                  !salary.participationPeePerco,
+                )
               }
-              label="PEG/PERCO"
-              sx={{ ml: 2 }}
+              color="primary"
+              size="small"
+              sx={{ justifySelf: "center" }}
+              inputProps={{ "aria-label": "Participation PEE/PERCO" }}
+            />
+            <Switch
+              checked={salary.participationStable}
+              onChange={() =>
+                onFieldChange(
+                  "participationStable",
+                  !salary.participationStable,
+                )
+              }
+              color="primary"
+              size="small"
+              sx={{ justifySelf: "center" }}
+              inputProps={{ "aria-label": "Participation stable" }}
             />
           </FormControl>
           <FormControl
             variant="standard"
             sx={{
               width: "80%",
-              display: "flex",
-              flexDirection: "row",
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 1fr) 64px 64px",
               alignItems: "center",
-              gap: 2,
+              columnGap: 0.5,
             }}
           >
             <TextField
@@ -276,21 +340,25 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
               size="small"
               fullWidth
             />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={salary.abondementPegPerco}
-                  onChange={() =>
-                    onFieldChange(
-                      "abondementPegPerco",
-                      !salary.abondementPegPerco,
-                    )
-                  }
-                  color="primary"
-                />
+            <Switch
+              checked={salary.abondementPeePerco}
+              onChange={() =>
+                onFieldChange("abondementPeePerco", !salary.abondementPeePerco)
               }
-              label="PEG/PERCO"
-              sx={{ ml: 2 }}
+              color="primary"
+              size="small"
+              sx={{ justifySelf: "center" }}
+              inputProps={{ "aria-label": "Abondement PEE/PERCO" }}
+            />
+            <Switch
+              checked={salary.abondementStable}
+              onChange={() =>
+                onFieldChange("abondementStable", !salary.abondementStable)
+              }
+              color="primary"
+              size="small"
+              sx={{ justifySelf: "center" }}
+              inputProps={{ "aria-label": "Abondement stable" }}
             />
           </FormControl>
         </Box>
@@ -397,6 +465,17 @@ function Salary({ salary, metrics, isTaxSliderTouched, onFieldChange }) {
                 </TableCell>
                 <TableCell align="right">
                   {formatAmount(metrics.totalNetApresImpotMensuel)}
+                </TableCell>
+              </TableRow>
+              <TableRow sx={{ fontWeight: "bold" }}>
+                <TableCell sx={{ fontWeight: "bold" }}>
+                  Revenu net bancaire
+                </TableCell>
+                <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                  {formatAmount(metrics.stableNetAnnuel)}
+                </TableCell>
+                <TableCell align="right" sx={{ fontWeight: "bold" }}>
+                  {formatAmount(metrics.stableNetMensuel)}
                 </TableCell>
               </TableRow>
             </TableBody>

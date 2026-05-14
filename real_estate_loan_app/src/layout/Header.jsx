@@ -53,7 +53,7 @@ function Header({ currentStep, onStepChange }) {
               letterSpacing: 0.5,
             },
             ".Mui-selected": {
-              color: "#fff",
+              color: BRAND_COLORS.warning,
             },
           }}
         >

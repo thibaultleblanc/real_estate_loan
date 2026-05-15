@@ -40,12 +40,7 @@ export function useScenarioController() {
       loan: scenario.loan,
       settings: scenario.settings,
     });
-  }, [
-    scenario.loan.revenuNetBancaire,
-    salaryMetrics.stableNetMensuel,
-    scenario.loan,
-    scenario.settings,
-  ]);
+  }, [salaryMetrics.stableNetMensuel, scenario.loan, scenario.settings]);
 
   useEffect(() => {
     const suggestedTaxRate = estimateTaxRateFromTaxableIncome(

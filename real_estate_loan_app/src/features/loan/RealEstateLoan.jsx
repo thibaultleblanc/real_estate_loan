@@ -62,7 +62,6 @@ function RealEstateLoan({
   }
 
   const montantMax = Math.max(0, Math.round(metrics.montantMax || 0));
-  const coutEmprunt = Math.max(0, Math.round(metrics.coutEmprunt || 0));
 
   const pieData = [
     {

@@ -32,6 +32,7 @@ export const DEFAULT_SCENARIO = {
     tauxAnnuel: 3.5,
     apport: "0",
     isNeuf: false,
+    revenuNetBancaire: "",
   },
 };
 

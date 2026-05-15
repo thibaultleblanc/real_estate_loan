@@ -10,7 +10,13 @@ import {
 import { formatAmount } from "../../utils/calculations";
 import { BRAND_GRADIENTS } from "../../themeTokens";
 
-function RealEstateLoan({ loan, settings, metrics, onFieldChange }) {
+function RealEstateLoan({
+  loan,
+  settings,
+  metrics,
+  salaryMetrics,
+  onFieldChange,
+}) {
   function updateDuree(value) {
     if (Array.isArray(value)) {
       onFieldChange("duree", value[0]);
@@ -55,7 +61,7 @@ function RealEstateLoan({ loan, settings, metrics, onFieldChange }) {
           mx: "auto",
         }}
       >
-        Simulation Prêt Immobilier
+        Capacité d&apos;emprunt
       </Box>
       <Box
         sx={{
@@ -68,6 +74,18 @@ function RealEstateLoan({ loan, settings, metrics, onFieldChange }) {
       >
         {/* Colonne Inputs */}
         <FormControl sx={{ width: { xs: "100%", md: "50%" } }}>
+          <TextField
+            label="Revenu net bancaire mensuel (€)"
+            type="number"
+            value={
+              loan.revenuNetBancaire ||
+              Math.round(salaryMetrics?.stableNetMensuel || 0)
+            }
+            onChange={(e) => onFieldChange("revenuNetBancaire", e.target.value)}
+            size="small"
+            slotProps={{ htmlInput: { min: 0, step: 1 } }}
+            sx={{ mb: 2 }}
+          />
           <Typography gutterBottom>Duree (annees) : {loan.duree}</Typography>
           <Slider
             value={loan.duree}
@@ -130,6 +148,13 @@ function RealEstateLoan({ loan, settings, metrics, onFieldChange }) {
           <Typography>
             Montant maximal empruntable : {formatAmount(metrics.montantMax, 0)}{" "}
             €
+          </Typography>
+          <Typography>
+            Cout de l&apos;emprunt (interets) :{" "}
+            {formatAmount(metrics.coutEmprunt, 0)} €
+          </Typography>
+          <Typography>
+            Credit total rembourse : {formatAmount(metrics.totalRembourse, 0)} €
           </Typography>
           <Typography>
             Apport personnel : {formatAmount(metrics.apportValue, 0)} €

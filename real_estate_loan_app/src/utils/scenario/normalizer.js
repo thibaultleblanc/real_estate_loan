@@ -235,6 +235,10 @@ export function normalizeScenario(rawScenario) {
       ),
       apport: pickStringOrNumberAsString(loanRaw.apport, fallback.loan.apport),
       isNeuf: pickBoolean(loanRaw.isNeuf, fallback.loan.isNeuf),
+      revenuNetBancaire: pickStringOrNumberAsString(
+        loanRaw.revenuNetBancaire,
+        fallback.loan.revenuNetBancaire,
+      ),
     },
   };
 }

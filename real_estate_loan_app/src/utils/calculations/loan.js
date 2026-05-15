@@ -17,8 +17,11 @@ export function calculateLoanMetrics({
   loan,
   settings = DEFAULT_FACTORY_SETTINGS,
 }) {
+  const nbMensualites = loan.duree * 12;
   const mensualiteMax = netMensuel * settings.tauxEndettement;
   const montantMax = getMontantMax(mensualiteMax, loan.duree, loan.tauxAnnuel);
+  const totalRembourse = mensualiteMax * nbMensualites;
+  const coutEmprunt = totalRembourse - montantMax;
   const apportValue = parseAmount(loan.apport);
   const capaciteAchatBrut = montantMax + apportValue;
   const tauxFraisNotaire = loan.isNeuf
@@ -27,8 +30,11 @@ export function calculateLoanMetrics({
   const fraisNotaire = capaciteAchatBrut * tauxFraisNotaire;
 
   return {
+    nbMensualites,
     mensualiteMax,
     montantMax,
+    totalRembourse,
+    coutEmprunt,
     apportValue,
     tauxFraisNotaire,
     tauxEndettement: settings.tauxEndettement,

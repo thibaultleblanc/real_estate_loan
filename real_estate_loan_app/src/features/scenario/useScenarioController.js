@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { parseAmount } from "../../utils/calculations/shared";
 import {
   calculateLoanMetrics,
   calculateSalaryMetrics,
@@ -30,15 +31,21 @@ export function useScenarioController() {
     [scenario.salary, scenario.settings],
   );
 
-  const loanMetrics = useMemo(
-    () =>
-      calculateLoanMetrics({
-        netMensuel: salaryMetrics.totalNetMensuel,
-        loan: scenario.loan,
-        settings: scenario.settings,
-      }),
-    [salaryMetrics.totalNetMensuel, scenario.loan, scenario.settings],
-  );
+  const loanMetrics = useMemo(() => {
+    const netMensuel =
+      parseAmount(scenario.loan.revenuNetBancaire) ||
+      salaryMetrics.stableNetMensuel;
+    return calculateLoanMetrics({
+      netMensuel,
+      loan: scenario.loan,
+      settings: scenario.settings,
+    });
+  }, [
+    scenario.loan.revenuNetBancaire,
+    salaryMetrics.stableNetMensuel,
+    scenario.loan,
+    scenario.settings,
+  ]);
 
   useEffect(() => {
     const suggestedTaxRate = estimateTaxRateFromTaxableIncome(

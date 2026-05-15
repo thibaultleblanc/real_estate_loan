@@ -29,6 +29,7 @@ function StepContent({
         loan={scenario.loan}
         settings={scenario.settings}
         metrics={loanMetrics}
+        salaryMetrics={salaryMetrics}
         onFieldChange={onLoanFieldChange}
       />
     );

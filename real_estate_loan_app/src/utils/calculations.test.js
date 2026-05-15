@@ -43,7 +43,13 @@ describe("calculateLoanMetrics", () => {
       settings: DEFAULT_FACTORY_SETTINGS,
     });
 
+    expect(metrics.nbMensualites).toBe(240);
     expect(metrics.mensualiteMax).toBe(1400);
+    expect(metrics.totalRembourse).toBe(336000);
+    expect(metrics.coutEmprunt).toBeCloseTo(
+      metrics.totalRembourse - metrics.montantMax,
+      2,
+    );
     expect(metrics.tauxFraisNotaire).toBe(
       DEFAULT_FACTORY_SETTINGS.fraisNotaireAncien,
     );

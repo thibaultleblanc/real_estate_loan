@@ -39,7 +39,13 @@ describe("calculateLoanMetrics", () => {
   it("calcule mensualite max et applique frais de notaire ancien", () => {
     const metrics = calculateLoanMetrics({
       netMensuel: 4000,
-      loan: { duree: 20, tauxAnnuel: 3.5, apport: "10000", isNeuf: false },
+      loan: {
+        duree: 20,
+        tauxAnnuel: 3.5,
+        tauxAssuranceAnnuel: 0,
+        apport: "10000",
+        isNeuf: false,
+      },
       settings: DEFAULT_FACTORY_SETTINGS,
     });
 
@@ -50,6 +56,8 @@ describe("calculateLoanMetrics", () => {
       metrics.totalRembourse - metrics.montantMax,
       2,
     );
+    expect(metrics.totalAssurance).toBe(0);
+    expect(metrics.totalInterets).toBeCloseTo(metrics.coutEmprunt, 2);
     expect(metrics.tauxFraisNotaire).toBe(
       DEFAULT_FACTORY_SETTINGS.fraisNotaireAncien,
     );
@@ -62,12 +70,51 @@ describe("calculateLoanMetrics", () => {
   it("bascule sur les frais notaire neuf quand isNeuf est vrai", () => {
     const metrics = calculateLoanMetrics({
       netMensuel: 4000,
-      loan: { duree: 20, tauxAnnuel: 3.5, apport: "10000", isNeuf: true },
+      loan: {
+        duree: 20,
+        tauxAnnuel: 3.5,
+        tauxAssuranceAnnuel: 0,
+        apport: "10000",
+        isNeuf: true,
+      },
       settings: DEFAULT_FACTORY_SETTINGS,
     });
 
     expect(metrics.tauxFraisNotaire).toBe(
       DEFAULT_FACTORY_SETTINGS.fraisNotaireNeuf,
+    );
+  });
+
+  it("reduit le montant empruntable quand le taux assurance augmente", () => {
+    const withoutInsurance = calculateLoanMetrics({
+      netMensuel: 4000,
+      loan: {
+        duree: 20,
+        tauxAnnuel: 3.5,
+        tauxAssuranceAnnuel: 0,
+        apport: "10000",
+        isNeuf: false,
+      },
+      settings: DEFAULT_FACTORY_SETTINGS,
+    });
+
+    const withInsurance = calculateLoanMetrics({
+      netMensuel: 4000,
+      loan: {
+        duree: 20,
+        tauxAnnuel: 3.5,
+        tauxAssuranceAnnuel: 0.5,
+        apport: "10000",
+        isNeuf: false,
+      },
+      settings: DEFAULT_FACTORY_SETTINGS,
+    });
+
+    expect(withInsurance.montantMax).toBeLessThan(withoutInsurance.montantMax);
+    expect(withInsurance.totalAssurance).toBeGreaterThan(0);
+    expect(withInsurance.coutEmprunt).toBeCloseTo(
+      withInsurance.totalInterets + withInsurance.totalAssurance,
+      2,
     );
   });
 });

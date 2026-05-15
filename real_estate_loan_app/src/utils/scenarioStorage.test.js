@@ -27,6 +27,7 @@ describe("normalizeScenario", () => {
       loan: {
         duree: 8,
         tauxAnnuel: "4.2",
+        tauxAssuranceAnnuel: "0.45",
       },
     });
 
@@ -42,6 +43,7 @@ describe("normalizeScenario", () => {
     expect(normalized.salary.participationPeePerco).toBe(true);
     expect(normalized.loan.duree).toBe(10);
     expect(normalized.loan.tauxAnnuel).toBe(4.2);
+    expect(normalized.loan.tauxAssuranceAnnuel).toBe(0.45);
   });
 
   it("retourne le fallback complet sur input invalide", () => {

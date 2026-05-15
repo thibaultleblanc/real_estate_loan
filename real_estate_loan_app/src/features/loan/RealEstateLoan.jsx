@@ -7,8 +7,28 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import { PieChart } from "@mui/x-charts";
+import { useDrawingArea } from "@mui/x-charts/hooks";
 import { formatAmount } from "../../utils/calculations";
-import { BRAND_GRADIENTS } from "../../themeTokens";
+import { BRAND_COLORS, BRAND_GRADIENTS } from "../../themeTokens";
+
+const StyledText = styled("text")(({ theme }) => ({
+  fill: theme.palette.text.primary,
+  textAnchor: "middle",
+  dominantBaseline: "central",
+  fontSize: 18,
+  fontWeight: 700,
+}));
+
+function PieCenterLabel({ children }) {
+  const { width, height, left, top } = useDrawingArea();
+  return (
+    <StyledText x={left + width / 2} y={top + height / 2}>
+      {children}
+    </StyledText>
+  );
+}
 
 function RealEstateLoan({
   loan,
@@ -32,6 +52,41 @@ function RealEstateLoan({
       Number.isFinite(parsed) ? Math.max(0, parsed) : 0,
     );
   }
+
+  function updateTauxAssuranceAnnuel(nextValue) {
+    const parsed = Number.parseFloat(nextValue);
+    onFieldChange(
+      "tauxAssuranceAnnuel",
+      Number.isFinite(parsed) ? Math.max(0, parsed) : 0,
+    );
+  }
+
+  const montantMax = Math.max(0, Math.round(metrics.montantMax || 0));
+  const coutEmprunt = Math.max(0, Math.round(metrics.coutEmprunt || 0));
+
+  const pieData = [
+    {
+      id: 0,
+      value: montantMax,
+      label: "Montant maximal emprunté : ",
+      color: BRAND_COLORS.primary,
+    },
+    {
+      id: 1,
+      value: Math.max(0, Math.round(metrics.totalInterets || 0)),
+      label: "Intérêts : ",
+      color: BRAND_COLORS.secondary,
+    },
+    {
+      id: 2,
+      value: Math.max(0, Math.round(metrics.totalAssurance || 0)),
+      label: "Assurance : ",
+      color: BRAND_COLORS.warning,
+    },
+  ].filter((item) => item.value > 0);
+
+  const pieTotal = pieData.reduce((sum, item) => sum + item.value, 0);
+  const hasPieData = pieTotal > 0;
 
   return (
     <Box
@@ -106,6 +161,15 @@ function RealEstateLoan({
             sx={{ mb: 2 }}
           />
           <TextField
+            label="Taux assurance emprunteur (%)"
+            type="number"
+            value={loan.tauxAssuranceAnnuel ?? 0}
+            onChange={(e) => updateTauxAssuranceAnnuel(e.target.value)}
+            size="small"
+            slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
+            sx={{ mb: 2 }}
+          />
+          <TextField
             label="Apport (€)"
             type="number"
             value={loan.apport}
@@ -141,23 +205,80 @@ function RealEstateLoan({
             mt: { xs: 2, md: 0 },
           }}
         >
+          <Box
+            sx={{
+              mt: 1,
+              p: 2,
+              borderRadius: 2,
+            }}
+          >
+            {hasPieData ? (
+              <Box sx={{ maxWidth: 340, mx: "auto" }}>
+                <PieChart
+                  height={240}
+                  margin={{ top: 12, right: 12, bottom: 56, left: 12 }}
+                  series={[
+                    {
+                      data: pieData,
+                      innerRadius: 52,
+                      outerRadius: 90,
+                      paddingAngle: 3,
+                      cornerRadius: 4,
+                      arcLabel: (item) =>
+                        `${Math.round((item.value / pieTotal) * 100)}%`,
+                      arcLabelMinAngle: 12,
+                    },
+                  ]}
+                  hideLegend
+                >
+                  <PieCenterLabel>{formatAmount(pieTotal, 0)} €</PieCenterLabel>
+                </PieChart>
+                <Box
+                  sx={{
+                    mt: 1,
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "center",
+                    gap: 2,
+                  }}
+                >
+                  {pieData.map((item) => (
+                    <Box
+                      key={item.id}
+                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                    >
+                      <Box
+                        sx={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: "50%",
+                          bgcolor: item.color,
+                          flexShrink: 0,
+                        }}
+                      />
+                      <Typography variant="body2">
+                        {item.label}{" "}
+                        <Box component="span" sx={{ fontWeight: 700 }}>
+                          {formatAmount(item.value, 0)} €
+                        </Box>
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                Ajuste les paramètres du prêt pour afficher le graphique.
+              </Typography>
+            )}
+          </Box>
           <Typography>
             Mensualité maximale ({Math.round(metrics.tauxEndettement * 100)}% du
-            net mensuel) : {formatAmount(metrics.mensualiteMax)} €
+            net bancaire) : {formatAmount(metrics.mensualiteMax)} €
           </Typography>
           <Typography>
-            Montant maximal empruntable : {formatAmount(metrics.montantMax, 0)}{" "}
-            €
-          </Typography>
-          <Typography>
-            Cout de l&apos;emprunt (interets) :{" "}
-            {formatAmount(metrics.coutEmprunt, 0)} €
-          </Typography>
-          <Typography>
-            Credit total rembourse : {formatAmount(metrics.totalRembourse, 0)} €
-          </Typography>
-          <Typography>
-            Apport personnel : {formatAmount(metrics.apportValue, 0)} €
+            Assurance mensuelle estimée :{" "}
+            {formatAmount(metrics.assuranceMensuelle)} €
           </Typography>
           <Typography>
             Frais de notaire estimés : {formatAmount(metrics.fraisNotaire, 0)} €

@@ -1,15 +1,31 @@
 import { DEFAULT_FACTORY_SETTINGS } from "../factorySettings";
 import { parseAmount } from "./shared";
 
-export function getMontantMax(mensualite, duree, tauxAnnuel) {
+export function getMontantMax(
+  mensualite,
+  duree,
+  tauxAnnuel,
+  tauxAssuranceAnnuel = 0,
+) {
   const n = duree * 12;
   const tauxMensuel = tauxAnnuel / 12 / 100;
+  const tauxAssuranceMensuel = Math.max(0, tauxAssuranceAnnuel) / 12 / 100;
 
-  if (tauxMensuel === 0) {
+  if (n <= 0) {
+    return 0;
+  }
+
+  const facteurAmortissement =
+    tauxMensuel === 0
+      ? 1 / n
+      : tauxMensuel / (1 - Math.pow(1 + tauxMensuel, -n));
+  const tauxMensuelTotal = facteurAmortissement + tauxAssuranceMensuel;
+
+  if (tauxMensuelTotal === 0) {
     return mensualite * n;
   }
 
-  return (mensualite * (1 - Math.pow(1 + tauxMensuel, -n))) / tauxMensuel;
+  return mensualite / tauxMensuelTotal;
 }
 
 export function calculateLoanMetrics({
@@ -19,9 +35,21 @@ export function calculateLoanMetrics({
 }) {
   const nbMensualites = loan.duree * 12;
   const mensualiteMax = netMensuel * settings.tauxEndettement;
-  const montantMax = getMontantMax(mensualiteMax, loan.duree, loan.tauxAnnuel);
+  const tauxAssuranceAnnuel = Math.max(
+    0,
+    Number.parseFloat(loan.tauxAssuranceAnnuel ?? 0) || 0,
+  );
+  const montantMax = getMontantMax(
+    mensualiteMax,
+    loan.duree,
+    loan.tauxAnnuel,
+    tauxAssuranceAnnuel,
+  );
+  const assuranceMensuelle = (montantMax * (tauxAssuranceAnnuel / 100)) / 12;
+  const totalAssurance = assuranceMensuelle * nbMensualites;
   const totalRembourse = mensualiteMax * nbMensualites;
   const coutEmprunt = totalRembourse - montantMax;
+  const totalInterets = Math.max(0, coutEmprunt - totalAssurance);
   const apportValue = parseAmount(loan.apport);
   const capaciteAchatBrut = montantMax + apportValue;
   const tauxFraisNotaire = loan.isNeuf
@@ -35,6 +63,10 @@ export function calculateLoanMetrics({
     montantMax,
     totalRembourse,
     coutEmprunt,
+    totalInterets,
+    tauxAssuranceAnnuel,
+    assuranceMensuelle,
+    totalAssurance,
     apportValue,
     tauxFraisNotaire,
     tauxEndettement: settings.tauxEndettement,

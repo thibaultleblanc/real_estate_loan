@@ -233,6 +233,13 @@ export function normalizeScenario(rawScenario) {
         0,
         pickNumber(loanRaw.tauxAnnuel, fallback.loan.tauxAnnuel),
       ),
+      tauxAssuranceAnnuel: Math.max(
+        0,
+        pickNumber(
+          loanRaw.tauxAssuranceAnnuel,
+          fallback.loan.tauxAssuranceAnnuel,
+        ),
+      ),
       apport: pickStringOrNumberAsString(loanRaw.apport, fallback.loan.apport),
       isNeuf: pickBoolean(loanRaw.isNeuf, fallback.loan.isNeuf),
       revenuNetBancaire: pickStringOrNumberAsString(

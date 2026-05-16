@@ -12,6 +12,7 @@ export const DEFAULT_FACTORY_SETTINGS = {
   tauxCadre: 0.75,
   tauxNonCadre: 0.77,
   tauxEndettement: 0.35,
+  fraisGarantie: 0.02,
   fraisNotaireNeuf: 0.02,
   fraisNotaireAncien: 0.08,
   taxBrackets: FACTORY_TAX_BRACKETS.map((bracket) => ({ ...bracket })),

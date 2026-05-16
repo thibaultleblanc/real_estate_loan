@@ -43,6 +43,7 @@ describe("calculateLoanMetrics", () => {
         duree: 20,
         tauxAnnuel: 3.5,
         tauxAssuranceAnnuel: 0,
+        tauxFraisGarantie: 2,
         apport: "10000",
         isNeuf: false,
       },
@@ -58,12 +59,14 @@ describe("calculateLoanMetrics", () => {
     );
     expect(metrics.totalAssurance).toBe(0);
     expect(metrics.totalInterets).toBeCloseTo(metrics.coutEmprunt, 2);
+    expect(metrics.tauxFraisGarantie).toBe(2);
+    expect(metrics.fraisGarantie).toBeCloseTo(metrics.montantMax * 0.02, 2);
     expect(metrics.tauxFraisNotaire).toBe(
       DEFAULT_FACTORY_SETTINGS.fraisNotaireAncien,
     );
     expect(metrics.fraisNotaire).toBeGreaterThan(0);
     expect(metrics.capaciteAchatNet).toBeLessThan(
-      metrics.montantMax + metrics.apportValue,
+      metrics.montantMax + metrics.apportValue - metrics.fraisGarantie,
     );
   });
 
@@ -74,6 +77,7 @@ describe("calculateLoanMetrics", () => {
         duree: 20,
         tauxAnnuel: 3.5,
         tauxAssuranceAnnuel: 0,
+        tauxFraisGarantie: 2,
         apport: "10000",
         isNeuf: true,
       },
@@ -92,6 +96,7 @@ describe("calculateLoanMetrics", () => {
         duree: 20,
         tauxAnnuel: 3.5,
         tauxAssuranceAnnuel: 0,
+        tauxFraisGarantie: 2,
         apport: "10000",
         isNeuf: false,
       },
@@ -104,6 +109,7 @@ describe("calculateLoanMetrics", () => {
         duree: 20,
         tauxAnnuel: 3.5,
         tauxAssuranceAnnuel: 0.5,
+        tauxFraisGarantie: 2,
         apport: "10000",
         isNeuf: false,
       },

@@ -4,6 +4,8 @@ export const BRAND_COLORS = {
   primaryDark: "#4338CA",
   accent: "#7C3AED",
   warning: "#FCD34D",
+  warningStrong: "#ffab0f",
+  emerald: "#22d19a",
   divider: "#E5E7EB",
   textSecondary: "#6B7280",
   primaryHover: "rgba(79, 70, 229, 0.08)",

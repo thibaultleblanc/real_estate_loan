@@ -1,5 +1,10 @@
 import { createDefaultScenario, SCENARIO_VERSION } from "./model";
 
+function normalizePercentValue(value, fallback) {
+  const parsed = Math.max(0, pickNumber(value, fallback));
+  return parsed <= 1 ? parsed * 100 : parsed;
+}
+
 function pickBoolean(value, fallback) {
   return typeof value === "boolean" ? value : fallback;
 }
@@ -133,6 +138,12 @@ export function normalizeScenario(rawScenario) {
         0,
         1,
       ),
+      fraisGarantie: pickBoundedNumber(
+        settingsRaw.fraisGarantie,
+        fallback.settings.fraisGarantie,
+        0,
+        1,
+      ),
       fraisNotaireNeuf: pickBoundedNumber(
         settingsRaw.fraisNotaireNeuf,
         fallback.settings.fraisNotaireNeuf,
@@ -239,6 +250,10 @@ export function normalizeScenario(rawScenario) {
           loanRaw.tauxAssuranceAnnuel,
           fallback.loan.tauxAssuranceAnnuel,
         ),
+      ),
+      tauxFraisGarantie: normalizePercentValue(
+        loanRaw.tauxFraisGarantie,
+        fallback.loan.tauxFraisGarantie ?? fallback.settings.fraisGarantie,
       ),
       apport: pickStringOrNumberAsString(loanRaw.apport, fallback.loan.apport),
       isNeuf: pickBoolean(loanRaw.isNeuf, fallback.loan.isNeuf),

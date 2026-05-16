@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { PieChart } from "@mui/x-charts";
+import { PieChart, pieClasses, BarChart, barClasses } from "@mui/x-charts";
 import { useDrawingArea } from "@mui/x-charts/hooks";
 import { formatAmount } from "../../utils/calculations";
 import { BRAND_COLORS, BRAND_GRADIENTS } from "../../themeTokens";
@@ -61,6 +61,14 @@ function RealEstateLoan({
     );
   }
 
+  function updateTauxFraisGarantie(nextValue) {
+    const parsed = Number.parseFloat(nextValue);
+    onFieldChange(
+      "tauxFraisGarantie",
+      Number.isFinite(parsed) ? Math.max(0, parsed) : 0,
+    );
+  }
+
   const montantMax = Math.max(0, Math.round(metrics.montantMax || 0));
 
   const pieData = [
@@ -82,10 +90,24 @@ function RealEstateLoan({
       label: "Assurance : ",
       color: BRAND_COLORS.warning,
     },
+    {
+      id: 3,
+      value: Math.max(0, Math.round(metrics.fraisGarantie || 0)),
+      label: "Frais de garantie : ",
+      color: BRAND_COLORS.warningStrong,
+    },
+    {
+      id: 4,
+      value: Math.max(0, Math.round(metrics.fraisNotaire || 0)),
+      label: "Frais de notaire : ",
+      color: BRAND_COLORS.emerald,
+    },
   ].filter((item) => item.value > 0);
 
   const pieTotal = pieData.reduce((sum, item) => sum + item.value, 0);
   const hasPieData = pieTotal > 0;
+  const montantInterets = Math.max(0, Math.round(metrics.totalInterets || 0));
+  const totalBar = montantMax + montantInterets;
 
   return (
     <Box
@@ -138,8 +160,15 @@ function RealEstateLoan({
             onChange={(e) => onFieldChange("revenuNetBancaire", e.target.value)}
             size="small"
             slotProps={{ htmlInput: { min: 0, step: 1 } }}
-            sx={{ mb: 2 }}
+            sx={{ mb: 1 }}
           />
+          <Typography
+            variant="caption"
+            sx={{ color: "text.secondary", ml: 2, mb: 3 }}
+          >
+            Mensualité maximale ({Math.round(metrics.tauxEndettement * 100)}% du
+            net bancaire) : {formatAmount(metrics.mensualiteMax)} €
+          </Typography>
           <Typography gutterBottom>Duree (annees) : {loan.duree}</Typography>
           <Slider
             value={loan.duree}
@@ -164,6 +193,22 @@ function RealEstateLoan({
             type="number"
             value={loan.tauxAssuranceAnnuel ?? 0}
             onChange={(e) => updateTauxAssuranceAnnuel(e.target.value)}
+            size="small"
+            slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
+            sx={{ mb: 1 }}
+          />
+          <Typography
+            variant="caption"
+            sx={{ color: "text.secondary", ml: 2, mb: 3 }}
+          >
+            Assurance mensuelle estimée :{" "}
+            {formatAmount(metrics.assuranceMensuelle)} €
+          </Typography>
+          <TextField
+            label="Frais de garantie (%)"
+            type="number"
+            value={loan.tauxFraisGarantie ?? 2}
+            onChange={(e) => updateTauxFraisGarantie(e.target.value)}
             size="small"
             slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
             sx={{ mb: 2 }}
@@ -212,57 +257,137 @@ function RealEstateLoan({
             }}
           >
             {hasPieData ? (
-              <Box sx={{ maxWidth: 340, mx: "auto" }}>
-                <PieChart
-                  height={240}
-                  margin={{ top: 12, right: 12, bottom: 56, left: 12 }}
-                  series={[
-                    {
-                      data: pieData,
-                      innerRadius: 52,
-                      outerRadius: 90,
-                      paddingAngle: 3,
-                      cornerRadius: 4,
-                      arcLabel: (item) =>
-                        `${Math.round((item.value / pieTotal) * 100)}%`,
-                      arcLabelMinAngle: 12,
-                    },
-                  ]}
-                  hideLegend
-                >
-                  <PieCenterLabel>{formatAmount(pieTotal, 0)} €</PieCenterLabel>
-                </PieChart>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "1fr",
+                    lg: "140px minmax(320px, 340px)",
+                  },
+                  alignItems: "start",
+                  justifyContent: "center",
+                  gap: { xs: 2, lg: 2 },
+                }}
+              >
+                <Box sx={{ width: { xs: "100%", lg: 140 }, mx: "auto" }}>
+                  <BarChart
+                    xAxis={[{ scaleType: "band", data: ["Emprunt"] }]}
+                    series={[
+                      {
+                        data: [montantMax],
+                        label: "Montant emprunté",
+                        color: BRAND_COLORS.primary,
+                        stack: "total",
+                        valueFormatter: (value) =>
+                          `${formatAmount(value, 0)} €`,
+                        barLabel: (item) =>
+                          totalBar > 0
+                            ? `${Math.round((item.value / totalBar) * 100)}%`
+                            : "",
+                      },
+                      {
+                        data: [montantInterets],
+                        label: "Intérêts",
+                        color: BRAND_COLORS.secondary,
+                        stack: "total",
+                        valueFormatter: (value) =>
+                          `${formatAmount(value, 0)} €`,
+                        barLabel: (item) =>
+                          totalBar > 0
+                            ? `${Math.round((item.value / totalBar) * 100)}%`
+                            : "",
+                      },
+                    ]}
+                    width={100}
+                    height={210}
+                    margin={{ top: 5, bottom: 5, left: 5, right: 5 }}
+                    hideLegend={true}
+                    sx={{
+                      [`& .${barClasses.bar}`]: {
+                        paintOrder: "stroke",
+                      },
+                      [`& .${barClasses.label}`]: {
+                        fill: "black",
+                        fontWeight: "bold",
+                        paintOrder: "stroke",
+                        stroke: "white",
+                        strokeWidth: "2px",
+                        strokeLinejoin: "round",
+                      },
+                    }}
+                  />
+                </Box>
                 <Box
                   sx={{
-                    mt: 1,
-                    display: "flex",
-                    flexWrap: "wrap",
-                    justifyContent: "center",
-                    gap: 2,
+                    width: { xs: "100%", lg: 340 },
+                    minWidth: { lg: 320 },
+                    flexShrink: 0,
+                    mx: "auto",
                   }}
                 >
-                  {pieData.map((item) => (
-                    <Box
-                      key={item.id}
-                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                    >
+                  <PieChart
+                    height={240}
+                    margin={{ top: 12, right: 12, bottom: 56, left: 12 }}
+                    series={[
+                      {
+                        data: pieData,
+                        innerRadius: 52,
+                        outerRadius: 90,
+                        paddingAngle: 3,
+                        cornerRadius: 4,
+                        arcLabel: (item) =>
+                          `${Math.round((item.value / pieTotal) * 100)}%`,
+                        arcLabelMinAngle: 12,
+                      },
+                    ]}
+                    hideLegend
+                    sx={{
+                      [`& .${pieClasses.arcLabel}`]: {
+                        fill: "black",
+                        fontWeight: "bold",
+                        paintOrder: "stroke",
+                        stroke: "white",
+                        strokeWidth: "2px",
+                        strokeLinejoin: "round",
+                      },
+                    }}
+                  >
+                    <PieCenterLabel>
+                      {formatAmount(pieTotal, 0)} €
+                    </PieCenterLabel>
+                  </PieChart>
+                  <Box
+                    sx={{
+                      mt: 1,
+                      display: "flex",
+                      flexWrap: "wrap",
+                      justifyContent: "center",
+                      gap: 2,
+                    }}
+                  >
+                    {pieData.map((item) => (
                       <Box
-                        sx={{
-                          width: 10,
-                          height: 10,
-                          borderRadius: "50%",
-                          bgcolor: item.color,
-                          flexShrink: 0,
-                        }}
-                      />
-                      <Typography variant="body2">
-                        {item.label}{" "}
-                        <Box component="span" sx={{ fontWeight: 700 }}>
-                          {formatAmount(item.value, 0)} €
-                        </Box>
-                      </Typography>
-                    </Box>
-                  ))}
+                        key={item.id}
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <Box
+                          sx={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: "50%",
+                            bgcolor: item.color,
+                            flexShrink: 0,
+                          }}
+                        />
+                        <Typography variant="body2">
+                          {item.label}{" "}
+                          <Box component="span" sx={{ fontWeight: 700 }}>
+                            {formatAmount(item.value, 0)} €
+                          </Box>
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
                 </Box>
               </Box>
             ) : (
@@ -271,18 +396,7 @@ function RealEstateLoan({
               </Typography>
             )}
           </Box>
-          <Typography>
-            Mensualité maximale ({Math.round(metrics.tauxEndettement * 100)}% du
-            net bancaire) : {formatAmount(metrics.mensualiteMax)} €
-          </Typography>
-          <Typography>
-            Assurance mensuelle estimée :{" "}
-            {formatAmount(metrics.assuranceMensuelle)} €
-          </Typography>
-          <Typography>
-            Frais de notaire estimés : {formatAmount(metrics.fraisNotaire, 0)} €
-          </Typography>
-          <Typography sx={{ fontWeight: "bold" }}>
+          <Typography sx={{ fontWeight: "bold", textAlign: "center" }}>
             Capacité d&apos;achat nette :{" "}
             {formatAmount(metrics.capaciteAchatNet, 0)} €
           </Typography>

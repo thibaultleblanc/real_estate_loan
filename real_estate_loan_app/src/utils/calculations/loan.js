@@ -52,6 +52,16 @@ export function calculateLoanMetrics({
   const totalInterets = Math.max(0, coutEmprunt - totalAssurance);
   const apportValue = parseAmount(loan.apport);
   const capaciteAchatBrut = montantMax + apportValue;
+  const rawTauxFraisGarantie = Math.max(
+    0,
+    Number.parseFloat(loan.tauxFraisGarantie ?? settings.fraisGarantie ?? 0) ||
+      0,
+  );
+  const tauxFraisGarantie =
+    rawTauxFraisGarantie <= 1
+      ? rawTauxFraisGarantie * 100
+      : rawTauxFraisGarantie;
+  const fraisGarantie = montantMax * (tauxFraisGarantie / 100);
   const tauxFraisNotaire = loan.isNeuf
     ? settings.fraisNotaireNeuf
     : settings.fraisNotaireAncien;
@@ -68,9 +78,11 @@ export function calculateLoanMetrics({
     assuranceMensuelle,
     totalAssurance,
     apportValue,
+    tauxFraisGarantie,
+    fraisGarantie,
     tauxFraisNotaire,
     tauxEndettement: settings.tauxEndettement,
     fraisNotaire,
-    capaciteAchatNet: capaciteAchatBrut - fraisNotaire,
+    capaciteAchatNet: capaciteAchatBrut - fraisNotaire - fraisGarantie,
   };
 }

@@ -17,6 +17,7 @@ describe("normalizeScenario", () => {
       settings: {
         nbMois: 30,
         tauxCadre: 2,
+        fraisGarantie: 0.03,
         taxBrackets: [{ upTo: 10, rate: 0.9 }],
       },
       salary: {
@@ -28,12 +29,14 @@ describe("normalizeScenario", () => {
         duree: 8,
         tauxAnnuel: "4.2",
         tauxAssuranceAnnuel: "0.45",
+        tauxFraisGarantie: "0.025",
       },
     });
 
     expect(normalized.currentStep).toBe(2);
     expect(normalized.settings.nbMois).toBe(24);
     expect(normalized.settings.tauxCadre).toBe(1);
+    expect(normalized.settings.fraisGarantie).toBe(0.03);
     expect(normalized.settings.taxBrackets).toHaveLength(
       DEFAULT_SCENARIO.settings.taxBrackets.length,
     );
@@ -44,6 +47,7 @@ describe("normalizeScenario", () => {
     expect(normalized.loan.duree).toBe(10);
     expect(normalized.loan.tauxAnnuel).toBe(4.2);
     expect(normalized.loan.tauxAssuranceAnnuel).toBe(0.45);
+    expect(normalized.loan.tauxFraisGarantie).toBe(2.5);
   });
 
   it("retourne le fallback complet sur input invalide", () => {

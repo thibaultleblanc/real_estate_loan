@@ -30,7 +30,8 @@ export const DEFAULT_SCENARIO = {
   loan: {
     duree: 20,
     tauxAnnuel: 3.5,
-    tauxAssuranceAnnuel: 0,
+    tauxAssuranceAnnuel: 0.35,
+    tauxFraisGarantie: 2,
     apport: "0",
     isNeuf: false,
     revenuNetBancaire: "",

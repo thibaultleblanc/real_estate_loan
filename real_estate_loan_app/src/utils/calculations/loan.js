@@ -80,7 +80,6 @@ export function calculateLoanMetrics({
 
   const ltvCible = Math.min(1, Math.max(0.01, (loan.loanToValue ?? 100) / 100));
 
-  // capaciteAchatNet =  + montant max, indépendante de l'apport réel
   const fraisGarantie = montantMax * tauxFraisGarantieRatio;
   const fraisNotaire = montantMax * tauxFraisNotaire;
   const fraisTotaux = fraisGarantie + fraisNotaire;
@@ -90,7 +89,7 @@ export function calculateLoanMetrics({
     (1 - ltvCible) * montantMax + fraisGarantie + fraisNotaire;
 
   // LTV effectif basé sur l'apport réel fourni
-  const capaciteAchatNet = montantMax + fraisTotaux - apportValue;
+  const capaciteAchatNet = montantMax + apportValue - fraisTotaux;
   const ltvEffectif = (montantMax + fraisTotaux - apportValue) / montantMax;
 
   return {

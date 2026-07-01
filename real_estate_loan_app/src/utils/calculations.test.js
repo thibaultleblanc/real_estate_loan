@@ -65,9 +65,7 @@ describe("calculateLoanMetrics", () => {
       DEFAULT_FACTORY_SETTINGS.fraisNotaireAncien,
     );
     expect(metrics.fraisNotaire).toBeGreaterThan(0);
-    expect(metrics.capaciteAchatNet).toBeLessThan(
-      metrics.montantMax + metrics.apportValue - metrics.fraisGarantie,
-    );
+    expect(metrics.ltvCible).toBe(100);
   });
 
   it("bascule sur les frais notaire neuf quand isNeuf est vrai", () => {

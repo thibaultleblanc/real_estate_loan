@@ -33,16 +33,33 @@ export function calculateLoanMetrics({
   loan,
   settings = DEFAULT_FACTORY_SETTINGS,
 }) {
-  const nbMensualites = loan.duree * 12;
-  const mensualiteMax = netMensuel * settings.tauxEndettement;
+  const tauxAnnuel = Math.max(
+    0,
+    Number.parseFloat(String(loan.tauxAnnuel ?? 0).replace(",", ".")) || 0,
+  );
   const tauxAssuranceAnnuel = Math.max(
     0,
-    Number.parseFloat(loan.tauxAssuranceAnnuel ?? 0) || 0,
+    Number.parseFloat(
+      String(loan.tauxAssuranceAnnuel ?? 0).replace(",", "."),
+    ) || 0,
   );
+  const rawTauxFraisGarantie = Math.max(
+    0,
+    Number.parseFloat(
+      String(loan.tauxFraisGarantie ?? settings.fraisGarantie ?? 0).replace(
+        ",",
+        ".",
+      ),
+    ) || 0,
+  );
+
+  const nbMensualites = loan.duree * 12;
+  const mensualiteMax = netMensuel * settings.tauxEndettement;
+
   const montantMax = getMontantMax(
     mensualiteMax,
     loan.duree,
-    loan.tauxAnnuel,
+    tauxAnnuel,
     tauxAssuranceAnnuel,
   );
   const assuranceMensuelle = (montantMax * (tauxAssuranceAnnuel / 100)) / 12;
@@ -51,21 +68,30 @@ export function calculateLoanMetrics({
   const coutEmprunt = totalRembourse - montantMax;
   const totalInterets = Math.max(0, coutEmprunt - totalAssurance);
   const apportValue = parseAmount(loan.apport);
-  const capaciteAchatBrut = montantMax + apportValue;
-  const rawTauxFraisGarantie = Math.max(
-    0,
-    Number.parseFloat(loan.tauxFraisGarantie ?? settings.fraisGarantie ?? 0) ||
-      0,
-  );
+
   const tauxFraisGarantie =
     rawTauxFraisGarantie <= 1
       ? rawTauxFraisGarantie * 100
       : rawTauxFraisGarantie;
-  const fraisGarantie = montantMax * (tauxFraisGarantie / 100);
+  const tauxFraisGarantieRatio = tauxFraisGarantie / 100;
   const tauxFraisNotaire = loan.isNeuf
     ? settings.fraisNotaireNeuf
     : settings.fraisNotaireAncien;
-  const fraisNotaire = capaciteAchatBrut * tauxFraisNotaire;
+
+  const ltvCible = Math.min(1, Math.max(0.01, (loan.loanToValue ?? 100) / 100));
+
+  // capaciteAchatNet =  + montant max, indépendante de l'apport réel
+  const fraisGarantie = montantMax * tauxFraisGarantieRatio;
+  const fraisNotaire = montantMax * tauxFraisNotaire;
+  const fraisTotaux = fraisGarantie + fraisNotaire;
+
+  // apportAttendu basé sur LTV cible (indépendant de l'apport réel fourni)
+  const apportAttendu =
+    (1 - ltvCible) * montantMax + fraisGarantie + fraisNotaire;
+
+  // LTV effectif basé sur l'apport réel fourni
+  const capaciteAchatNet = montantMax + fraisTotaux - apportValue;
+  const ltvEffectif = (montantMax + fraisTotaux - apportValue) / montantMax;
 
   return {
     nbMensualites,
@@ -83,6 +109,9 @@ export function calculateLoanMetrics({
     tauxFraisNotaire,
     tauxEndettement: settings.tauxEndettement,
     fraisNotaire,
-    capaciteAchatNet: capaciteAchatBrut - fraisNotaire - fraisGarantie,
+    capaciteAchatNet,
+    apportAttendu,
+    ltvCible: Math.round(ltvCible * 100),
+    ltvEffectif: Math.round(ltvEffectif * 100),
   };
 }

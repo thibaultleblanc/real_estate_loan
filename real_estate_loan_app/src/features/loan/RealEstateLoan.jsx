@@ -46,30 +46,19 @@ function RealEstateLoan({
   }
 
   function updateTauxAnnuel(nextValue) {
-    const parsed = Number.parseFloat(nextValue);
-    onFieldChange(
-      "tauxAnnuel",
-      Number.isFinite(parsed) ? Math.max(0, parsed) : 0,
-    );
+    onFieldChange("tauxAnnuel", nextValue);
   }
 
   function updateTauxAssuranceAnnuel(nextValue) {
-    const parsed = Number.parseFloat(nextValue);
-    onFieldChange(
-      "tauxAssuranceAnnuel",
-      Number.isFinite(parsed) ? Math.max(0, parsed) : 0,
-    );
+    onFieldChange("tauxAssuranceAnnuel", nextValue);
   }
 
   function updateTauxFraisGarantie(nextValue) {
-    const parsed = Number.parseFloat(nextValue);
-    onFieldChange(
-      "tauxFraisGarantie",
-      Number.isFinite(parsed) ? Math.max(0, parsed) : 0,
-    );
+    onFieldChange("tauxFraisGarantie", nextValue);
   }
 
   const montantMax = Math.max(0, Math.round(metrics.montantMax || 0));
+  const montantAssurance = Math.max(0, Math.round(metrics.totalAssurance || 0));
 
   const pieData = [
     {
@@ -107,7 +96,7 @@ function RealEstateLoan({
   const pieTotal = pieData.reduce((sum, item) => sum + item.value, 0);
   const hasPieData = pieTotal > 0;
   const montantInterets = Math.max(0, Math.round(metrics.totalInterets || 0));
-  const totalBar = montantMax + montantInterets;
+  const totalBar = montantMax + montantInterets + montantAssurance;
 
   return (
     <Box
@@ -149,95 +138,215 @@ function RealEstateLoan({
         }}
       >
         {/* Colonne Inputs */}
-        <FormControl sx={{ width: { xs: "100%", md: "50%" } }}>
-          <TextField
-            label="Revenu net bancaire mensuel (€)"
-            type="number"
-            value={
-              loan.revenuNetBancaire ||
-              Math.round(salaryMetrics?.stableNetMensuel || 0)
-            }
-            onChange={(e) => onFieldChange("revenuNetBancaire", e.target.value)}
-            size="small"
-            slotProps={{ htmlInput: { min: 0, step: 1 } }}
-            sx={{ mb: 1 }}
-          />
-          <Typography
-            variant="caption"
-            sx={{ color: "text.secondary", ml: 2, mb: 3 }}
+        <Box
+          sx={{
+            width: { xs: "100%", md: "50%" },
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+          }}
+        >
+          {/* Revenu */}
+          <Box
+            component="fieldset"
+            sx={{
+              border: "1px solid #e0e0e0",
+              borderRadius: 2,
+              p: 2,
+              margin: 0,
+            }}
           >
-            Mensualité maximale ({Math.round(metrics.tauxEndettement * 100)}% du
-            net bancaire) : {formatAmount(metrics.mensualiteMax)} €
-          </Typography>
-          <Typography gutterBottom>Duree (annees) : {loan.duree}</Typography>
-          <Slider
-            value={loan.duree}
-            min={10}
-            max={25}
-            step={1}
-            onChange={(_, value) => updateDuree(value)}
-            valueLabelDisplay="auto"
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            label="Taux annuel (%)"
-            type="number"
-            value={loan.tauxAnnuel}
-            onChange={(e) => updateTauxAnnuel(e.target.value)}
-            size="small"
-            slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            label="Taux assurance emprunteur (%)"
-            type="number"
-            value={loan.tauxAssuranceAnnuel ?? 0}
-            onChange={(e) => updateTauxAssuranceAnnuel(e.target.value)}
-            size="small"
-            slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
-            sx={{ mb: 1 }}
-          />
-          <Typography
-            variant="caption"
-            sx={{ color: "text.secondary", ml: 2, mb: 3 }}
+            <Box
+              component="legend"
+              sx={{
+                paddingX: 1,
+                marginLeft: "-8px",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+              }}
+            >
+              Revenu
+            </Box>
+            <TextField
+              label="Revenu net bancaire mensuel (€)"
+              type="number"
+              value={
+                loan.revenuNetBancaire ||
+                Math.round(salaryMetrics?.stableNetMensuel || 0)
+              }
+              onChange={(e) =>
+                onFieldChange("revenuNetBancaire", e.target.value)
+              }
+              size="small"
+              slotProps={{ htmlInput: { min: 0, step: 1 } }}
+              sx={{ mb: 2, width: "100%" }}
+            />
+            <Typography variant="caption" sx={{ color: "text.secondary" }}>
+              Mensualité maximale ({Math.round(metrics.tauxEndettement * 100)}%
+              du net bancaire) : {formatAmount(metrics.mensualiteMax)} €
+            </Typography>
+          </Box>
+
+          {/* Prêt */}
+          <Box
+            component="fieldset"
+            sx={{
+              border: "1px solid #e0e0e0",
+              borderRadius: 2,
+              p: 2,
+              margin: 0,
+            }}
           >
-            Assurance mensuelle estimée :{" "}
-            {formatAmount(metrics.assuranceMensuelle)} €
-          </Typography>
-          <TextField
-            label="Frais de garantie (%)"
-            type="number"
-            value={loan.tauxFraisGarantie ?? 2}
-            onChange={(e) => updateTauxFraisGarantie(e.target.value)}
-            size="small"
-            slotProps={{ htmlInput: { min: 0, step: 0.01 } }}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            label="Apport (€)"
-            type="number"
-            value={loan.apport}
-            onChange={(e) => onFieldChange("apport", e.target.value)}
-            size="small"
-            slotProps={{ htmlInput: { min: 0, step: 1000 } }}
-            sx={{ mb: 2 }}
-          />
-          <FormControlLabel
-            control={
-              <Switch
-                checked={loan.isNeuf}
-                onChange={() => onFieldChange("isNeuf", !loan.isNeuf)}
-                color="primary"
-              />
-            }
-            label={
-              loan.isNeuf
-                ? `Logement neuf (${Math.round(settings.fraisNotaireNeuf * 100)}% frais de notaire)`
-                : `Logement ancien (${Math.round(settings.fraisNotaireAncien * 100)}% frais de notaire)`
-            }
-            sx={{ mt: 1 }}
-          />
-        </FormControl>
+            <Box
+              component="legend"
+              sx={{
+                paddingX: 1,
+                marginLeft: "-8px",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+              }}
+            >
+              Prêt
+            </Box>
+            <Typography gutterBottom sx={{ fontSize: "0.875rem" }}>
+              Durée (années) : {loan.duree}
+            </Typography>
+            <Slider
+              value={loan.duree}
+              min={10}
+              max={25}
+              step={1}
+              onChange={(_, value) => updateDuree(value)}
+              valueLabelDisplay="auto"
+              sx={{ mb: 3 }}
+            />
+            <TextField
+              label="Taux annuel (%)"
+              type="number"
+              value={loan.tauxAnnuel}
+              onChange={(e) => updateTauxAnnuel(e.target.value)}
+              size="small"
+              slotProps={{
+                htmlInput: { min: 0, step: "any", inputMode: "decimal" },
+              }}
+              sx={{ mb: 2, width: "100%" }}
+            />
+            <TextField
+              label="Taux assurance emprunteur (%)"
+              type="number"
+              value={loan.tauxAssuranceAnnuel ?? 0}
+              onChange={(e) => updateTauxAssuranceAnnuel(e.target.value)}
+              size="small"
+              slotProps={{
+                htmlInput: { min: 0, step: "any", inputMode: "decimal" },
+              }}
+              sx={{ mb: 2, width: "100%" }}
+            />
+            <Typography variant="caption" sx={{ color: "text.secondary" }}>
+              Assurance mensuelle estimée :{" "}
+              {formatAmount(metrics.assuranceMensuelle)} €
+            </Typography>
+          </Box>
+
+          {/* Frais */}
+          <Box
+            component="fieldset"
+            sx={{
+              border: "1px solid #e0e0e0",
+              borderRadius: 2,
+              p: 2,
+              margin: 0,
+            }}
+          >
+            <Box
+              component="legend"
+              sx={{
+                paddingX: 1,
+                marginLeft: "-8px",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+              }}
+            >
+              Frais
+            </Box>
+            <TextField
+              label="Frais de garantie (%)"
+              type="number"
+              value={loan.tauxFraisGarantie ?? 2}
+              onChange={(e) => updateTauxFraisGarantie(e.target.value)}
+              size="small"
+              slotProps={{
+                htmlInput: { min: 0, step: "any", inputMode: "decimal" },
+              }}
+              sx={{ mb: 2, width: "100%" }}
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={loan.isNeuf}
+                  onChange={() => onFieldChange("isNeuf", !loan.isNeuf)}
+                  color="primary"
+                />
+              }
+              label={
+                loan.isNeuf
+                  ? `Logement neuf (${Math.round(settings.fraisNotaireNeuf * 100)}% frais)`
+                  : `Logement ancien (${Math.round(settings.fraisNotaireAncien * 100)}% frais)`
+              }
+            />
+          </Box>
+
+          {/* Apport */}
+          <Box
+            component="fieldset"
+            sx={{
+              border: "1px solid #e0e0e0",
+              borderRadius: 2,
+              p: 2,
+              margin: 0,
+            }}
+          >
+            <Box
+              component="legend"
+              sx={{
+                paddingX: 1,
+                marginLeft: "-8px",
+                fontSize: "0.875rem",
+                fontWeight: 600,
+              }}
+            >
+              Apport
+            </Box>
+            <Typography gutterBottom sx={{ fontSize: "0.875rem" }}>
+              LTV cible : {loan.loanToValue ?? 100}%
+            </Typography>
+            <Slider
+              value={loan.loanToValue ?? 100}
+              min={50}
+              max={100}
+              step={5}
+              onChange={(_, value) => onFieldChange("loanToValue", value)}
+              valueLabelDisplay="auto"
+              valueLabelFormat={(v) => `${v}%`}
+              sx={{ mb: 2 }}
+            />
+            <Typography
+              variant="caption"
+              sx={{ color: "text.secondary", display: "block", mb: 2 }}
+            >
+              Apport attendu : {formatAmount(metrics.apportAttendu)} €
+            </Typography>
+            <TextField
+              label="Apport (€)"
+              type="number"
+              value={loan.apport}
+              onChange={(e) => onFieldChange("apport", e.target.value)}
+              size="small"
+              slotProps={{ htmlInput: { min: 0, step: 1000 } }}
+              sx={{ mb: 2, width: "100%" }}
+            />
+          </Box>
+        </Box>
         {/* Colonne Résultats */}
         <Box
           sx={{
@@ -294,6 +403,18 @@ function RealEstateLoan({
                           `${formatAmount(value, 0)} €`,
                         barLabel: (item) =>
                           totalBar > 0
+                            ? `${Math.round((item.value / totalBar) * 100)}%`
+                            : "",
+                      },
+                      {
+                        data: [montantAssurance],
+                        label: "Assurance",
+                        color: BRAND_COLORS.warning,
+                        stack: "total",
+                        valueFormatter: (value) =>
+                          `${formatAmount(value, 0)} €`,
+                        barLabel: (item) =>
+                          totalBar > 0 && item.value > 0
                             ? `${Math.round((item.value / totalBar) * 100)}%`
                             : "",
                       },
@@ -396,10 +517,31 @@ function RealEstateLoan({
               </Typography>
             )}
           </Box>
-          <Typography sx={{ fontWeight: "bold", textAlign: "center" }}>
-            Capacité d&apos;achat nette :{" "}
-            {formatAmount(metrics.capaciteAchatNet, 0)} €
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <Typography sx={{ fontWeight: "bold" }}>
+              Capacité d&apos;achat nette :{" "}
+              {formatAmount(metrics.capaciteAchatNet, 0)} €
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                color:
+                  metrics.ltvEffectif > metrics.ltvCible
+                    ? "error.main"
+                    : "success.main",
+              }}
+            >
+              LTV effectif : {metrics.ltvEffectif}%
+            </Typography>
+          </Box>
         </Box>
       </Box>
     </Box>

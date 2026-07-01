@@ -255,6 +255,12 @@ export function normalizeScenario(rawScenario) {
         loanRaw.tauxFraisGarantie,
         fallback.loan.tauxFraisGarantie ?? fallback.settings.fraisGarantie,
       ),
+      loanToValue: pickBoundedNumber(
+        loanRaw.loanToValue,
+        fallback.loan.loanToValue,
+        50,
+        100,
+      ),
       apport: pickStringOrNumberAsString(loanRaw.apport, fallback.loan.apport),
       isNeuf: pickBoolean(loanRaw.isNeuf, fallback.loan.isNeuf),
       revenuNetBancaire: pickStringOrNumberAsString(

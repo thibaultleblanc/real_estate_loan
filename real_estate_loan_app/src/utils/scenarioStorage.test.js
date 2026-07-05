@@ -33,7 +33,7 @@ describe("normalizeScenario", () => {
       },
     });
 
-    expect(normalized.currentStep).toBe(2);
+    expect(normalized.currentStep).toBe(3);
     expect(normalized.settings.nbMois).toBe(24);
     expect(normalized.settings.tauxCadre).toBe(1);
     expect(normalized.settings.fraisGarantie).toBe(0.03);

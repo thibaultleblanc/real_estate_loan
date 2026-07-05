@@ -109,7 +109,7 @@ function RealEstateLoan({
         width: "100%",
       }}
     >
-      {/* Bandeau Revenus */}
+      {/* Bandeau Capacite d'emprunt */}
       <Box
         sx={{
           width: { xs: "95%", md: "90%" },

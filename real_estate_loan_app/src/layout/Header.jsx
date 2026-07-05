@@ -1,7 +1,6 @@
 import { AppBar, Box, Tab, Tabs, Toolbar, Typography } from "@mui/material";
+import { SCENARIO_STEPS, SCENARIO_TITLE } from "../constants/scenarioFlow";
 import { BRAND_COLORS, BRAND_GRADIENTS } from "../themeTokens";
-
-const STEPS = ["Salaire", "Emprunt", "Rentabilite"];
 
 function Header({ currentStep, onStepChange }) {
   return (
@@ -31,7 +30,7 @@ function Header({ currentStep, onStepChange }) {
             Parcours Investisseur
           </Typography>
           <Typography variant="h4" sx={{ fontWeight: 700, lineHeight: 1.1 }}>
-            Salaire, Emprunt, Rentabilite
+            {SCENARIO_TITLE}
           </Typography>
         </Box>
         <Tabs
@@ -57,8 +56,8 @@ function Header({ currentStep, onStepChange }) {
             },
           }}
         >
-          {STEPS.map((step, index) => (
-            <Tab key={step} label={`${index + 1}. ${step}`} />
+          {SCENARIO_STEPS.map((step, index) => (
+            <Tab key={step.key} label={`${index + 1}. ${step.label}`} />
           ))}
         </Tabs>
       </Toolbar>

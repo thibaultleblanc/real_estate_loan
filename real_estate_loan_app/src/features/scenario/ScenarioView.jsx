@@ -3,6 +3,10 @@ import FactorySettingsDrawer from "../settings/FactorySettingsDrawer";
 import Header from "../../layout/Header";
 import StepContent from "./StepContent";
 import ScenarioToolbar from "./ScenarioToolbar";
+import {
+  SCENARIO_FIRST_STEP_INDEX,
+  SCENARIO_LAST_STEP_INDEX,
+} from "../../constants/scenarioFlow";
 import { BRAND_COLORS } from "../../themeTokens";
 import { useScenarioController } from "./useScenarioController";
 
@@ -18,6 +22,7 @@ function ScenarioView() {
     setCurrentStep,
     updateSalaryField,
     updateLoanField,
+    updateProjectField,
     updateSettingField,
     resetFactorySettings,
     toggleSettings,
@@ -92,20 +97,21 @@ function ScenarioView() {
             isTaxSliderTouched={isTaxSliderTouched}
             onSalaryFieldChange={updateSalaryField}
             onLoanFieldChange={updateLoanField}
+            onProjectFieldChange={updateProjectField}
           />
         </Box>
 
         <Stack direction="row" sx={{ mt: 2, justifyContent: "space-between" }}>
           <Button
             variant="outlined"
-            disabled={scenario.currentStep === 0}
+            disabled={scenario.currentStep === SCENARIO_FIRST_STEP_INDEX}
             onClick={() => setCurrentStep(scenario.currentStep - 1)}
           >
             Precedent
           </Button>
           <Button
             variant="contained"
-            disabled={scenario.currentStep === 2}
+            disabled={scenario.currentStep === SCENARIO_LAST_STEP_INDEX}
             onClick={() => setCurrentStep(scenario.currentStep + 1)}
           >
             Suivant

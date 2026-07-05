@@ -1,6 +1,8 @@
 import Salary from "../salary/Salary";
 import RealEstateLoan from "../loan/RealEstateLoan";
 import Rentability from "../rentability/Rentability";
+import Project from "../project/Project";
+import { SCENARIO_STEP_INDEX } from "../../constants/scenarioFlow";
 
 function StepContent({
   currentStep,
@@ -10,8 +12,9 @@ function StepContent({
   isTaxSliderTouched,
   onSalaryFieldChange,
   onLoanFieldChange,
+  onProjectFieldChange,
 }) {
-  if (currentStep === 0) {
+  if (currentStep === SCENARIO_STEP_INDEX.REVENU) {
     return (
       <Salary
         salary={scenario.salary}
@@ -23,7 +26,7 @@ function StepContent({
     );
   }
 
-  if (currentStep === 1) {
+  if (currentStep === SCENARIO_STEP_INDEX.CAPACITE) {
     return (
       <RealEstateLoan
         loan={scenario.loan}
@@ -31,6 +34,17 @@ function StepContent({
         metrics={loanMetrics}
         salaryMetrics={salaryMetrics}
         onFieldChange={onLoanFieldChange}
+      />
+    );
+  }
+
+  if (currentStep === SCENARIO_STEP_INDEX.PROJET) {
+    return (
+      <Project
+        project={scenario.project}
+        settings={scenario.settings}
+        salaryMetrics={salaryMetrics}
+        onFieldChange={onProjectFieldChange}
       />
     );
   }

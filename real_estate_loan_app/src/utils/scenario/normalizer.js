@@ -1,4 +1,5 @@
 import { createDefaultScenario, SCENARIO_VERSION } from "./model";
+import { clampScenarioStep } from "../../constants/scenarioFlow";
 
 function normalizePercentValue(value, fallback) {
   const parsed = Math.max(0, pickNumber(value, fallback));
@@ -34,22 +35,6 @@ function pickStringOrNumberAsString(value, fallback) {
   }
 
   return fallback;
-}
-
-function clampStep(step) {
-  if (!Number.isInteger(step)) {
-    return 0;
-  }
-
-  if (step < 0) {
-    return 0;
-  }
-
-  if (step > 2) {
-    return 2;
-  }
-
-  return step;
 }
 
 function pickBoundedNumber(value, fallback, min, max) {
@@ -103,10 +88,14 @@ export function normalizeScenario(rawScenario) {
     rawScenario.loan && typeof rawScenario.loan === "object"
       ? rawScenario.loan
       : {};
+  const projectRaw =
+    rawScenario.project && typeof rawScenario.project === "object"
+      ? rawScenario.project
+      : {};
 
   return {
     version: SCENARIO_VERSION,
-    currentStep: clampStep(rawScenario.currentStep),
+    currentStep: clampScenarioStep(rawScenario.currentStep),
     settings: {
       heuresMensuelles: pickBoundedNumber(
         settingsRaw.heuresMensuelles,
@@ -266,6 +255,49 @@ export function normalizeScenario(rawScenario) {
       revenuNetBancaire: pickStringOrNumberAsString(
         loanRaw.revenuNetBancaire,
         fallback.loan.revenuNetBancaire,
+      ),
+    },
+    project: {
+      valeurBien: pickStringOrNumberAsString(
+        projectRaw.valeurBien,
+        fallback.project.valeurBien,
+      ),
+      surface: pickStringOrNumberAsString(
+        projectRaw.surface,
+        fallback.project.surface,
+      ),
+      hasParking: pickBoolean(
+        projectRaw.hasParking,
+        fallback.project.hasParking,
+      ),
+      valeurParking: pickStringOrNumberAsString(
+        projectRaw.valeurParking,
+        fallback.project.valeurParking,
+      ),
+      revenuNetBancaire: pickStringOrNumberAsString(
+        projectRaw.revenuNetBancaire,
+        fallback.project.revenuNetBancaire,
+      ),
+      montantEmprunte: pickStringOrNumberAsString(
+        projectRaw.montantEmprunte,
+        fallback.project.montantEmprunte,
+      ),
+      dureePret: Math.min(
+        40,
+        Math.max(
+          1,
+          Math.round(
+            pickNumber(projectRaw.dureePret, fallback.project.dureePret),
+          ),
+        ),
+      ),
+      tauxAnnuelPret: pickStringOrNumberAsString(
+        projectRaw.tauxAnnuelPret,
+        fallback.project.tauxAnnuelPret,
+      ),
+      tauxAssurancePret: pickStringOrNumberAsString(
+        projectRaw.tauxAssurancePret,
+        fallback.project.tauxAssurancePret,
       ),
     },
   };

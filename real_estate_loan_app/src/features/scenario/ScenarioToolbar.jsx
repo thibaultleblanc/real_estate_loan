@@ -1,4 +1,5 @@
 import { Button, Stack, Typography } from "@mui/material";
+import { SCENARIO_STEP_COUNT } from "../../constants/scenarioFlow";
 import { BRAND_COLORS } from "../../themeTokens";
 
 function ScenarioToolbar({ scenario, onExport, onImportRequest, onReset }) {
@@ -18,7 +19,8 @@ function ScenarioToolbar({ scenario, onExport, onImportRequest, onReset }) {
       }}
     >
       <Typography sx={{ color: BRAND_COLORS.primary, fontWeight: 700 }}>
-        Scenario en cours: etape {scenario.currentStep + 1} / 3
+        Scenario en cours: etape {scenario.currentStep + 1} /{" "}
+        {SCENARIO_STEP_COUNT}
       </Typography>
       <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
         <Button variant="contained" color="primary" onClick={onExport}>

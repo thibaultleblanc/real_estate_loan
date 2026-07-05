@@ -37,6 +37,17 @@ export const DEFAULT_SCENARIO = {
     isNeuf: false,
     revenuNetBancaire: "",
   },
+  project: {
+    valeurBien: "",
+    surface: "",
+    hasParking: false,
+    valeurParking: "",
+    revenuNetBancaire: "",
+    montantEmprunte: "",
+    dureePret: 20,
+    tauxAnnuelPret: "",
+    tauxAssurancePret: "",
+  },
 };
 
 export function createDefaultScenario() {

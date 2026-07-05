@@ -7,6 +7,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { BarChart, LineChart } from "@mui/x-charts";
 import {
   calculateProjectMetrics,
   formatAmount,
@@ -16,7 +17,7 @@ import {
   PROJECT_LABELS,
   PROJECT_NUMERIC_BOUNDS,
 } from "../../constants/project";
-import { BRAND_GRADIENTS } from "../../themeTokens";
+import { BRAND_COLORS, BRAND_GRADIENTS } from "../../themeTokens";
 
 function parsePercent(value) {
   const parsed = Number.parseFloat(String(value ?? "").replace(",", "."));
@@ -67,6 +68,45 @@ function calculateLoanSummary(
     totalLoanCost,
     debtRatio,
   };
+}
+
+function buildAmortizationSeries(amount, years, annualRate, insuranceRate) {
+  if (amount <= 0 || years <= 0) {
+    return [];
+  }
+
+  const monthlyRate = annualRate / 100 / 12;
+  const monthlyInsurance = (amount * (insuranceRate / 100)) / 12;
+  const monthlyPayment = calculateMonthlyPayment(amount, years, annualRate);
+  const monthCount = years * 12;
+
+  let remainingBalance = amount;
+  const yearlyBuckets = [];
+
+  for (let monthIndex = 0; monthIndex < monthCount; monthIndex += 1) {
+    const interest = monthlyRate === 0 ? 0 : remainingBalance * monthlyRate;
+    const rawPrincipal = monthlyPayment - interest;
+    const principal = Math.min(remainingBalance, Math.max(0, rawPrincipal));
+    remainingBalance = Math.max(0, remainingBalance - principal);
+
+    const yearIndex = Math.floor(monthIndex / 12);
+    if (!yearlyBuckets[yearIndex]) {
+      yearlyBuckets[yearIndex] = {
+        year: yearIndex + 1,
+        principal: 0,
+        interest: 0,
+        insurance: 0,
+        balance: 0,
+      };
+    }
+
+    yearlyBuckets[yearIndex].principal += principal;
+    yearlyBuckets[yearIndex].interest += interest;
+    yearlyBuckets[yearIndex].insurance += monthlyInsurance;
+    yearlyBuckets[yearIndex].balance = remainingBalance;
+  }
+
+  return yearlyBuckets;
 }
 
 function getVariantTileSx(key) {
@@ -155,6 +195,12 @@ function Project({ project, settings, salaryMetrics, onFieldChange }) {
   );
   const loanToValue =
     valeurBien > 0 ? (montantEmprunte / valeurBien) * 100 : null;
+  const amortizationSeries = buildAmortizationSeries(
+    montantEmprunte,
+    dureePret,
+    tauxAnnuelPret,
+    tauxAssurancePret,
+  );
   const seuilEndettement = Number(settings?.tauxEndettement ?? 0.35);
   const seuilEndettementPercent =
     seuilEndettement <= 1 ? seuilEndettement * 100 : seuilEndettement;
@@ -720,6 +766,105 @@ function Project({ project, settings, salaryMetrics, onFieldChange }) {
           </Paper>
         </Box>
       </Box>
+
+      <Paper
+        sx={{
+          width: { xs: "100%", md: "90%" },
+          mx: "auto",
+          p: 2,
+        }}
+      >
+        <Typography sx={getTileTitleSx()}>
+          Tableau d&apos;amortissement
+        </Typography>
+
+        {amortizationSeries.length > 0 ? (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <BarChart
+              height={320}
+              dataset={amortizationSeries}
+              xAxis={[
+                {
+                  scaleType: "band",
+                  dataKey: "year",
+                  label: "Année",
+                },
+              ]}
+              yAxis={[
+                {
+                  label: "Montant (€)",
+                },
+              ]}
+              series={[
+                {
+                  dataKey: "principal",
+                  label: "Capital remboursé",
+                  stack: "amortization",
+                  color: BRAND_COLORS.primary,
+                },
+                {
+                  dataKey: "interest",
+                  label: "Intérêts",
+                  stack: "amortization",
+                  color: BRAND_COLORS.secondary,
+                },
+                {
+                  dataKey: "insurance",
+                  label: "Assurance",
+                  stack: "amortization",
+                  color: BRAND_COLORS.warningStrong,
+                },
+              ]}
+              margin={{ left: 70, right: 20, top: 20, bottom: 40 }}
+              slotProps={{
+                legend: {
+                  position: { vertical: "top", horizontal: "right" },
+                },
+              }}
+            />
+
+            <Box>
+              <Typography sx={getTileTitleSx()}>Capital restant dû</Typography>
+              <LineChart
+                height={280}
+                dataset={amortizationSeries}
+                xAxis={[
+                  {
+                    scaleType: "point",
+                    dataKey: "year",
+                    label: "Année",
+                  },
+                ]}
+                yAxis={[
+                  {
+                    label: "Capital restant (€)",
+                  },
+                ]}
+                series={[
+                  {
+                    dataKey: "balance",
+                    label: "Capital restant dû",
+                    color: BRAND_COLORS.accent,
+                    showMark: true,
+                    curve: "linear",
+                  },
+                ]}
+                margin={{ left: 70, right: 20, top: 20, bottom: 40 }}
+                slotProps={{
+                  legend: {
+                    hidden: true,
+                  },
+                }}
+              />
+            </Box>
+          </Box>
+        ) : (
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            Renseigne un montant emprunté, une durée et un taux courant pour
+            afficher l&apos;amortissement.
+          </Typography>
+        )}
+      </Paper>
     </Box>
   );
 }

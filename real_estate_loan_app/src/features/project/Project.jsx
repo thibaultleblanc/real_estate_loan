@@ -42,6 +42,74 @@ function calculateMonthlyPayment(amount, years, annualRate) {
   return (amount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -mensualites));
 }
 
+function calculateLoanSummary(
+  amount,
+  years,
+  annualRate,
+  insuranceRate,
+  income,
+) {
+  const monthlyInsurance = (amount * (insuranceRate / 100)) / 12;
+  const monthlyPayment = calculateMonthlyPayment(amount, years, annualRate);
+  const monthlyTotal = monthlyPayment + monthlyInsurance;
+  const installments = years * 12;
+  const totalInterest = Math.max(0, monthlyPayment * installments - amount);
+  const totalInsurance = monthlyInsurance * installments;
+  const totalLoanCost = totalInterest + totalInsurance;
+  const debtRatio = income > 0 ? (monthlyTotal / income) * 100 : null;
+
+  return {
+    monthlyInsurance,
+    monthlyPayment,
+    monthlyTotal,
+    totalInterest,
+    totalInsurance,
+    totalLoanCost,
+    debtRatio,
+  };
+}
+
+function getVariantTileSx(key) {
+  if (key === "current") {
+    return null;
+  }
+
+  return {
+    opacity: 0.72,
+    transform: { md: "scale(0.96)" },
+    transformOrigin: "top center",
+  };
+}
+
+function getVariantValueSx(key, extraSx = {}) {
+  if (key === "current") {
+    return { fontWeight: 700, ...extraSx };
+  }
+
+  return {
+    fontWeight: 600,
+    color: "text.secondary",
+    ...extraSx,
+  };
+}
+
+function getTileTitleSx() {
+  return {
+    fontSize: "0.875rem",
+    fontWeight: 600,
+    mb: 0.75,
+  };
+}
+
+function getMetricLabelSx(isVisible) {
+  return {
+    color: "text.secondary",
+    display: "block",
+    mb: 0.25,
+    visibility: isVisible ? "visible" : "hidden",
+  };
+}
+
 function Project({ project, settings, salaryMetrics, onFieldChange }) {
   const { hasParking, prixM2, prixM2HorsParking } =
     calculateProjectMetrics(project);
@@ -55,29 +123,72 @@ function Project({ project, settings, salaryMetrics, onFieldChange }) {
     1,
     Math.round(Number.parseFloat(String(project?.dureePret ?? 20)) || 20),
   );
+  const bonTauxAnnuelPret = parsePercent(project?.bonTauxAnnuelPret);
   const tauxAnnuelPret = parsePercent(project?.tauxAnnuelPret);
+  const mauvaisTauxAnnuelPret = parsePercent(project?.mauvaisTauxAnnuelPret);
+  const bonTauxAssurancePret = parsePercent(project?.bonTauxAssurancePret);
   const tauxAssurancePret = parsePercent(project?.tauxAssurancePret);
+  const mauvaisTauxAssurancePret = parsePercent(
+    project?.mauvaisTauxAssurancePret,
+  );
 
-  const assuranceMensuelle = (montantEmprunte * (tauxAssurancePret / 100)) / 12;
-  const remboursementMensuel = calculateMonthlyPayment(
+  const currentSummary = calculateLoanSummary(
     montantEmprunte,
     dureePret,
     tauxAnnuelPret,
+    tauxAssurancePret,
+    revenuNetBancaire,
   );
-  const mensualiteTotale = remboursementMensuel + assuranceMensuelle;
+  const goodSummary = calculateLoanSummary(
+    montantEmprunte,
+    dureePret,
+    bonTauxAnnuelPret,
+    bonTauxAssurancePret,
+    revenuNetBancaire,
+  );
+  const badSummary = calculateLoanSummary(
+    montantEmprunte,
+    dureePret,
+    mauvaisTauxAnnuelPret,
+    mauvaisTauxAssurancePret,
+    revenuNetBancaire,
+  );
   const loanToValue =
     valeurBien > 0 ? (montantEmprunte / valeurBien) * 100 : null;
   const seuilEndettement = Number(settings?.tauxEndettement ?? 0.35);
   const seuilEndettementPercent =
     seuilEndettement <= 1 ? seuilEndettement * 100 : seuilEndettement;
-  const tauxEndettementActuel =
-    revenuNetBancaire > 0 ? (mensualiteTotale / revenuNetBancaire) * 100 : null;
-  const debtRatioColor =
-    tauxEndettementActuel === null
-      ? "text.secondary"
-      : tauxEndettementActuel <= seuilEndettementPercent
-        ? "success.main"
-        : "error.main";
+  const variants = [
+    {
+      key: "good",
+      label: PROJECT_LABELS.goodScenario,
+      annualRateValue: project?.bonTauxAnnuelPret ?? "",
+      insuranceRateValue: project?.bonTauxAssurancePret ?? "",
+      summary: goodSummary,
+    },
+    {
+      key: "current",
+      label: PROJECT_LABELS.currentScenario,
+      annualRateValue: project?.tauxAnnuelPret ?? "",
+      insuranceRateValue: project?.tauxAssurancePret ?? "",
+      summary: currentSummary,
+    },
+    {
+      key: "bad",
+      label: PROJECT_LABELS.badScenario,
+      annualRateValue: project?.mauvaisTauxAnnuelPret ?? "",
+      insuranceRateValue: project?.mauvaisTauxAssurancePret ?? "",
+      summary: badSummary,
+    },
+  ];
+
+  function getDebtRatioColor(debtRatio) {
+    if (debtRatio === null) {
+      return "text.secondary";
+    }
+
+    return debtRatio <= seuilEndettementPercent ? "success.main" : "error.main";
+  }
 
   function updateDureePret(value) {
     const nextValue = Array.isArray(value) ? value[0] : value;
@@ -318,41 +429,124 @@ function Project({ project, settings, salaryMetrics, onFieldChange }) {
               sx={{ mb: 3 }}
             />
 
-            <TextField
-              label={PROJECT_LABELS.fieldTauxAnnuelPret}
-              type="number"
-              value={project?.tauxAnnuelPret ?? ""}
-              onChange={(event) =>
-                onFieldChange("tauxAnnuelPret", event.target.value)
-              }
-              size="small"
-              slotProps={{
-                htmlInput: {
-                  min: PROJECT_NUMERIC_BOUNDS.min,
-                  step: "any",
-                  inputMode: "decimal",
-                },
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 1fr" },
+                gap: 1.5,
+                mb: 2,
               }}
-              sx={{ mb: 2, width: "100%" }}
-            />
+            >
+              <TextField
+                label={PROJECT_LABELS.fieldBonTauxAnnuelPret}
+                type="number"
+                value={project?.bonTauxAnnuelPret ?? ""}
+                onChange={(event) =>
+                  onFieldChange("bonTauxAnnuelPret", event.target.value)
+                }
+                size="small"
+                slotProps={{
+                  htmlInput: {
+                    min: PROJECT_NUMERIC_BOUNDS.min,
+                    step: "any",
+                    inputMode: "decimal",
+                  },
+                }}
+              />
 
-            <TextField
-              label={PROJECT_LABELS.fieldTauxAssurancePret}
-              type="number"
-              value={project?.tauxAssurancePret ?? ""}
-              onChange={(event) =>
-                onFieldChange("tauxAssurancePret", event.target.value)
-              }
-              size="small"
-              slotProps={{
-                htmlInput: {
-                  min: PROJECT_NUMERIC_BOUNDS.min,
-                  step: "any",
-                  inputMode: "decimal",
-                },
+              <TextField
+                label={PROJECT_LABELS.fieldTauxAnnuelPret}
+                type="number"
+                value={project?.tauxAnnuelPret ?? ""}
+                onChange={(event) =>
+                  onFieldChange("tauxAnnuelPret", event.target.value)
+                }
+                size="small"
+                slotProps={{
+                  htmlInput: {
+                    min: PROJECT_NUMERIC_BOUNDS.min,
+                    step: "any",
+                    inputMode: "decimal",
+                  },
+                }}
+              />
+
+              <TextField
+                label={PROJECT_LABELS.fieldMauvaisTauxAnnuelPret}
+                type="number"
+                value={project?.mauvaisTauxAnnuelPret ?? ""}
+                onChange={(event) =>
+                  onFieldChange("mauvaisTauxAnnuelPret", event.target.value)
+                }
+                size="small"
+                slotProps={{
+                  htmlInput: {
+                    min: PROJECT_NUMERIC_BOUNDS.min,
+                    step: "any",
+                    inputMode: "decimal",
+                  },
+                }}
+              />
+            </Box>
+
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 1fr" },
+                gap: 1.5,
               }}
-              sx={{ width: "100%" }}
-            />
+            >
+              <TextField
+                label={PROJECT_LABELS.fieldBonTauxAssurancePret}
+                type="number"
+                value={project?.bonTauxAssurancePret ?? ""}
+                onChange={(event) =>
+                  onFieldChange("bonTauxAssurancePret", event.target.value)
+                }
+                size="small"
+                slotProps={{
+                  htmlInput: {
+                    min: PROJECT_NUMERIC_BOUNDS.min,
+                    step: "any",
+                    inputMode: "decimal",
+                  },
+                }}
+              />
+
+              <TextField
+                label={PROJECT_LABELS.fieldTauxAssurancePret}
+                type="number"
+                value={project?.tauxAssurancePret ?? ""}
+                onChange={(event) =>
+                  onFieldChange("tauxAssurancePret", event.target.value)
+                }
+                size="small"
+                slotProps={{
+                  htmlInput: {
+                    min: PROJECT_NUMERIC_BOUNDS.min,
+                    step: "any",
+                    inputMode: "decimal",
+                  },
+                }}
+              />
+
+              <TextField
+                label={PROJECT_LABELS.fieldMauvaisTauxAssurancePret}
+                type="number"
+                value={project?.mauvaisTauxAssurancePret ?? ""}
+                onChange={(event) =>
+                  onFieldChange("mauvaisTauxAssurancePret", event.target.value)
+                }
+                size="small"
+                slotProps={{
+                  htmlInput: {
+                    min: PROJECT_NUMERIC_BOUNDS.min,
+                    step: "any",
+                    inputMode: "decimal",
+                  },
+                }}
+              />
+            </Box>
           </Box>
         </Box>
 
@@ -364,19 +558,8 @@ function Project({ project, settings, salaryMetrics, onFieldChange }) {
             flex: 1,
           }}
         >
-          <Box
-            component="legend"
-            sx={{
-              paddingX: 1,
-              marginLeft: "-8px",
-              fontSize: "0.875rem",
-              fontWeight: 600,
-            }}
-          >
-            {PROJECT_LABELS.sectionResume}
-          </Box>
-
           <Paper sx={{ p: 1.5, mt: 0.5 }}>
+            <Typography sx={getTileTitleSx()}>Prix au m²</Typography>
             <Typography variant="h6" sx={{ fontWeight: 700 }}>
               {formatAmount(prixM2, PROJECT_FORMAT.currencyDigits)} € / m²
             </Typography>
@@ -392,44 +575,148 @@ function Project({ project, settings, salaryMetrics, onFieldChange }) {
           </Paper>
 
           <Paper sx={{ p: 1.5 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              {project?.montantEmprunte
-                ? `${formatAmount(mensualiteTotale)} € / mois`
-                : "xx€ / mois"}
+            <Typography sx={getTileTitleSx()}>
+              {PROJECT_LABELS.monthlyPayment}
             </Typography>
-            <Typography
-              variant="body2"
-              sx={{ color: "text.secondary", mb: 0.25 }}
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                gap: 1.5,
+              }}
             >
-              {project?.montantEmprunte
-                ? `${formatAmount(remboursementMensuel)} € emprunt`
-                : "xx€ emprunt"}
-            </Typography>
-            <Typography variant="body2" sx={{ color: "text.secondary" }}>
-              {project?.montantEmprunte
-                ? `${formatAmount(assuranceMensuelle)} € assurance`
-                : "xx€ assurance"}
-            </Typography>
+              {variants.map((variant) => (
+                <Box key={variant.key} sx={getVariantTileSx(variant.key)}>
+                  <Typography variant="h6" sx={getVariantValueSx(variant.key)}>
+                    {project?.montantEmprunte
+                      ? `${formatAmount(variant.summary.monthlyTotal)} €`
+                      : "xx€"}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={getMetricLabelSx(variant.key === "current")}
+                  >
+                    Emprunt
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "text.secondary", mb: 0.5 }}
+                  >
+                    {project?.montantEmprunte
+                      ? `${formatAmount(variant.summary.monthlyPayment)} €`
+                      : "xx€"}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={getMetricLabelSx(variant.key === "current")}
+                  >
+                    Assurance
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    {project?.montantEmprunte
+                      ? `${formatAmount(variant.summary.monthlyInsurance)} €`
+                      : "xx€"}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
           </Paper>
 
           <Paper sx={{ p: 1.5 }}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-              {PROJECT_LABELS.debtRatio} :{" "}
-              <Box
-                component="span"
-                sx={{ color: debtRatioColor, fontWeight: 600 }}
-              >
-                {tauxEndettementActuel !== null
-                  ? `${formatAmount(tauxEndettementActuel, PROJECT_FORMAT.currencyDigits)} %`
-                  : "-"}
-              </Box>
+            <Typography sx={getTileTitleSx()}>
+              {PROJECT_LABELS.totalLoanCost}
             </Typography>
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              {PROJECT_LABELS.loanToValue} :{" "}
-              {loanToValue !== null
-                ? `${formatAmount(loanToValue, PROJECT_FORMAT.currencyDigits)} %`
-                : "-"}
-            </Typography>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                gap: 1.5,
+              }}
+            >
+              {variants.map((variant) => (
+                <Box key={variant.key} sx={getVariantTileSx(variant.key)}>
+                  <Typography
+                    variant="h6"
+                    sx={getVariantValueSx(variant.key, { mb: 0.5 })}
+                  >
+                    {project?.montantEmprunte
+                      ? `${formatAmount(variant.summary.totalLoanCost)} €`
+                      : "xx€"}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={getMetricLabelSx(variant.key === "current")}
+                  >
+                    Intérêts
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{ color: "text.secondary", mb: 0.5 }}
+                  >
+                    {project?.montantEmprunte
+                      ? `${formatAmount(variant.summary.totalInterest)} €`
+                      : "xx€"}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={getMetricLabelSx(variant.key === "current")}
+                  >
+                    Assurance
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    {project?.montantEmprunte
+                      ? `${formatAmount(variant.summary.totalInsurance)} €`
+                      : "xx€"}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Paper>
+
+          <Paper sx={{ p: 1.5 }}>
+            <Typography sx={getTileTitleSx()}>Ratios</Typography>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                gap: 1.5,
+              }}
+            >
+              {variants.map((variant) => (
+                <Box key={variant.key} sx={getVariantTileSx(variant.key)}>
+                  <Typography
+                    variant="caption"
+                    sx={getMetricLabelSx(variant.key === "current")}
+                  >
+                    {PROJECT_LABELS.debtRatio}
+                  </Typography>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      ...getVariantValueSx(variant.key),
+                      color: getDebtRatioColor(variant.summary.debtRatio),
+                      mb: 0.75,
+                    }}
+                  >
+                    {variant.summary.debtRatio !== null
+                      ? `${formatAmount(variant.summary.debtRatio, PROJECT_FORMAT.currencyDigits)} %`
+                      : "-"}
+                  </Typography>
+
+                  <Typography
+                    variant="caption"
+                    sx={getMetricLabelSx(variant.key === "current")}
+                  >
+                    {PROJECT_LABELS.loanToValue}
+                  </Typography>
+                  <Typography variant="h6" sx={getVariantValueSx(variant.key)}>
+                    {loanToValue !== null
+                      ? `${formatAmount(loanToValue, PROJECT_FORMAT.currencyDigits)} %`
+                      : "-"}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
           </Paper>
         </Box>
       </Box>

@@ -45,8 +45,12 @@ export const DEFAULT_SCENARIO = {
     revenuNetBancaire: "",
     montantEmprunte: "",
     dureePret: 20,
+    bonTauxAnnuelPret: "",
     tauxAnnuelPret: "",
+    mauvaisTauxAnnuelPret: "",
+    bonTauxAssurancePret: "",
     tauxAssurancePret: "",
+    mauvaisTauxAssurancePret: "",
   },
 };
 

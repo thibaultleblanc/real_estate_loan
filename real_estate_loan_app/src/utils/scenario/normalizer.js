@@ -291,13 +291,29 @@ export function normalizeScenario(rawScenario) {
           ),
         ),
       ),
+      bonTauxAnnuelPret: pickStringOrNumberAsString(
+        projectRaw.bonTauxAnnuelPret,
+        fallback.project.bonTauxAnnuelPret,
+      ),
       tauxAnnuelPret: pickStringOrNumberAsString(
         projectRaw.tauxAnnuelPret,
         fallback.project.tauxAnnuelPret,
       ),
+      mauvaisTauxAnnuelPret: pickStringOrNumberAsString(
+        projectRaw.mauvaisTauxAnnuelPret,
+        fallback.project.mauvaisTauxAnnuelPret,
+      ),
+      bonTauxAssurancePret: pickStringOrNumberAsString(
+        projectRaw.bonTauxAssurancePret,
+        fallback.project.bonTauxAssurancePret,
+      ),
       tauxAssurancePret: pickStringOrNumberAsString(
         projectRaw.tauxAssurancePret,
         fallback.project.tauxAssurancePret,
+      ),
+      mauvaisTauxAssurancePret: pickStringOrNumberAsString(
+        projectRaw.mauvaisTauxAssurancePret,
+        fallback.project.mauvaisTauxAssurancePret,
       ),
     },
   };
